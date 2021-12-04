@@ -9,6 +9,8 @@
 
 #include <iostream>
 
+using namespace std;
+
 int getFileSize(int fd)
 {
     struct stat s;
@@ -19,7 +21,8 @@ int getFileSize(int fd)
 
 void printChar(unsigned char c)
 {
-    printf("%x", c);
+    printf("%x", (c & 0xF0) >> 4);
+    printf("%x", c & 0x0F);
     return;
 }
 
@@ -57,4 +60,35 @@ void printHex(unsigned char* str, int s)
     {
         printChar(str[i]);
     }
+}
+
+string loadString(unsigned char** addr)
+{
+    unsigned char* nowAddr = *addr;
+    string ret = "";
+
+    // Assume here string size is < 0xFF
+    int ssize = nowAddr[0];
+    nowAddr += 1;
+
+    // lua 5.3 truncate the zero
+    ret.append(reinterpret_cast<const char*>(nowAddr), ssize - 1);
+    nowAddr += ssize - 1;
+
+    *addr = nowAddr;
+    return ret;
+}
+
+int loadInt(unsigned char** addr)
+{
+    unsigned char* nowAddr = *addr;
+    int ret = 0;
+    unsigned char* toAddr = reinterpret_cast<unsigned char*>(&ret);
+
+    std::memcpy(&ret, nowAddr, sizeof(int));
+
+    nowAddr += sizeof(int);
+
+    *addr = nowAddr;
+    return ret;
 }
