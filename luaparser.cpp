@@ -210,6 +210,7 @@ void printFunctionBlock(unsigned char* fileBase)
                 break;
             case 1:
                 printf("Constant Type: Boolean\n");
+                printf("TBD\n");
                 break;
             case 3:
                 if (varTag == 0)
@@ -233,6 +234,69 @@ void printFunctionBlock(unsigned char* fileBase)
         printf("\n");
     }
 
+    printf("=== Lua Up Values ===\n");
+    int numUpVal = loadInt(&fileBase);
+    // assert(numNestedFunc == 0);
+    printf("Up Values Num: %d\n", numUpVal);
+    for (int i = 0; i < numUpVal; ++i)
+    {
+        int instack = loadByte(&fileBase);  // whether it is in stack (register)
+        int idx     = loadByte(&fileBase);  // index of upvalue (in stack or in outer function's list)
+
+        printf("Up values[%d]: instack?: %d, idx: %d\n", i, instack, idx);
+    }
+
+    printf("\n=== Lua Nested Functions (Protos) ===\n");
+    int numNestedFuncs = loadInt(&fileBase);
+    printf("Nested Function Nums: %d\n", numNestedFuncs);
+    assert (numNestedFuncs == 0); // TBD, for nested functions
+
+    printf("\n=== Debug Infos - Line Info ===\n");
+    printf("map from opcodes to source lines (debug information)\n");
+    // It is stored in Proto structure's lineinfo, as int* (an integer array)
+
+    int numLineInfo = loadInt(&fileBase);
+    for (int i = 0; i < numLineInfo; ++i)
+    {
+        printf("opcode line [%d] -> source code line [%d]\n", i, loadInt(&fileBase));
+    }
+
+    printf("\n=== Debug Infos - Local Variables ===\n");
+    int numLocVars = loadInt(&fileBase);
+    printf("Number of local variables %d\n", numLocVars);
+
+    // local variable debug info is stored in Proto structure's LocVar *locvars
+    // where LocVar is:
+    // typedef struct LocVar {
+    //   TString *varname;
+    //   int startpc;   first point where variable is active
+    //   int endpc;    first point where variable is dead
+    // } LocVar;
+
+    for (int i = 0; i < numLocVars; ++i)
+    {
+        // original dump code in ldump.c DumpDebug function for reference: 
+        // DumpString(f->locvars[i].varname, D);
+        // DumpInt(f->locvars[i].startpc, D);
+        // DumpInt(f->locvars[i].endpc, D);
+
+        cout << "[Name: " << loadString(&fileBase) << "]" << " ";
+        printf("start pc: %d, end pc: %d\n", loadInt(&fileBase), loadInt(&fileBase));
+
+    }
+
+    printf("\n=== Debug Infos - Up Values Names ===\n");
+    int numUpVals = loadInt(&fileBase);
+    printf("Number of up values %d\n", numUpVals);
+
+    // by default, there is a _ENV, you could refer to lua-users.org/wiki/EnvironmentsTutorial
+
+    for (int i = 0; i < numUpVals; ++i)
+    {
+
+        cout << "[Name: " << loadString(&fileBase) << "]" << endl;
+
+    }
 }
 
 int main(int argc, char* argv[])
