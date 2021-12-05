@@ -37,7 +37,7 @@ Refer to *A No-Frills Introduction to Lua 5.1 VM instructions by Kein-Hong Man, 
 
 **Remark**: There is no official docs to introduce the dumped lua. The dumped logic is at `ldump.c`. You could refer to `luaU_dump` function as an entry.
 
-**Remark**: lua 5.3's binary dumped file is differently from 5.1 and other version. Therefore, the tutorial here is inconsistent with Kein-Hong Man's manual[1].
+**Remark**: lua 5.3's binary dumped file is differently from 5.1 and other versions. Therefore, the tutorial here is inconsistent with Kein-Hong Man's manual[1] based on 5.1.
 
 **Header block layout**:
 
