@@ -13,31 +13,35 @@
 
 using namespace std;
 
-#define highDig(X) ((X & 0xf0) >> 4)
-#define lowDig(X) (X & 0x0f)
+#define scdByte(X) ((X & 0xf0) >> 4)
+#define fstByte(X) (X & 0x0f)
 
 // Refer to A No-Frills Introduction to Lua 5.1 VM Instructions
 
-#define lua_Integer long
-#define Instruction unsigned int
+#define lua_Integer  long
+#define lua_Number   double
+#define Instruction  unsigned int
+
+#define LUA_TNUMFLT (3 | (0 << 4))  /* float numbers */
+#define LUA_TNUMINT (3 | (1 << 4))  /* integer numbers */
 
 #pragma pack(push,1)
 typedef struct HeaderBlock {
-    unsigned int     Lua_Signature;    // Header signature: ESC, “Lua” or 0x1B4C7561
-    unsigned char    Lua_VerNumber;    // Version number, 0x51 (81 decimal) for Lua 5.1
-    unsigned char    Lua_FormatVer;    // Format version, 0=official version
-    unsigned char    Lua_Data[6];      // Data To Catch Conversion Errors
+    unsigned int     Lua_Signature;       // Header signature: ESC, “Lua” or 0x1B4C7561
+    unsigned char    Lua_VerNumber;       // Version number, 0x53 for Lua 5.3
+    unsigned char    Lua_FormatVer;       // Format version, 0=official version
+    unsigned char    Lua_Data[6];         // Data To Catch Conversion Errors
 
-    unsigned char Lua_SizeInt;         // Size of integer (in bytes) (default 4)
-    unsigned char Lua_SizeSizeT;       // Size of size_t (in bytes) (default 8 on 64-bits OS)
-    unsigned char Lua_SizeInstr;       // Size of Instruction (in bytes) (default 4)
-    unsigned char Lua_SizeLuaInt;      // Size of lua_Integer (in bytes) (default 8)
-    unsigned char Lua_SizeLuaNum;      // Size of lua_Number (in bytes) (default 8)
+    unsigned char    Lua_SizeInt;         // Size of integer (in bytes) (default 4)
+    unsigned char    Lua_SizeSizeT;       // Size of size_t (in bytes) (default 8 on 64-bits OS)
+    unsigned char    Lua_SizeInstr;       // Size of Instruction (in bytes) (default 4)
+    unsigned char    Lua_SizeLuaInt;      // Size of lua_Integer (in bytes) (default 8)
+    unsigned char    Lua_SizeLuaNum;      // Size of lua_Number (in bytes) (default 8)
 
-    lua_Integer Lua_ExampleInt;           // 0x5678 (little endian)
-    double Lua_ExampleNum;                // cast_num(370.5)
+    lua_Integer      Lua_ExampleInt;      // 0x5678 (little endian)
+    lua_Number       Lua_ExampleNum;      // cast_num(370.5)
 
-    unsigned char Lua_SizeUpvalues;    // Size of up values (in bytes) (default 1)
+    unsigned char    Lua_SizeUpvalues;    // Size of up values (in bytes) (default 1)
 
 } HeaderBlock;
 #pragma pack(pop)
@@ -46,7 +50,7 @@ typedef struct HeaderBlock {
 typedef struct FuncBlock {
     int               Lua_LineDefined;
     int               Lua_LastLineDefined;
-    // unsigned char     Lua_NumUpVal;
+
     unsigned char     Lua_NumParam;
     unsigned char     Lua_VarArgFlag;
     unsigned char     Lua_MaxStackSize;
@@ -69,7 +73,7 @@ void printHeaderBlock(unsigned char* fileBase)
     printf("\n");
 
     printf("Lua Version: ");
-    printf("%d.%d", highDig(hb.Lua_VerNumber), lowDig(hb.Lua_VerNumber));
+    printf("%d.%d", scdByte(hb.Lua_VerNumber), fstByte(hb.Lua_VerNumber));
     printf("\n");
 
     printf("Lua Format Version(Official=0): ");
@@ -125,9 +129,10 @@ void printHeaderBlock(unsigned char* fileBase)
 
 void printFunctionBlock(unsigned char* fileBase)
 {
+    unsigned char* initBase = fileBase;
     fileBase = fileBase + sizeof(HeaderBlock);
 
-    printf("=== Lua Top-level function(chunk) metadata===\n");
+    printf("=== Lua Function(chunk) Metadata===\n");
     printf("Source name: ");
     cout << loadString(&fileBase) << endl;
 
@@ -153,7 +158,7 @@ void printFunctionBlock(unsigned char* fileBase)
     printf("%d", fb.Lua_MaxStackSize);
     printf("\n");
 
-    printf("\n=== Lua Top-level function code===\n");
+    printf("\n=== Lua Top-level Function Code===\n");
     int numInstr = loadInt(&fileBase);
     printf("Number of instructions: %d\n", numInstr);
 
@@ -161,12 +166,72 @@ void printFunctionBlock(unsigned char* fileBase)
     {
         Instruction asbly_code = static_cast<Instruction>(*fileBase);
 
+        // 0x3f  : [0, 5 ] bits mask = 00000000111111
+        // 0xfc0 : [7, 14] bits mask = 01111111000000
         printf("[instr %d] [optcode %2d] [A %2d]: 0x", i, asbly_code & 0x3f, asbly_code &0xfc0);
         printHex(asbly_code);
         printf("\n");
         fileBase += sizeof(int);
     }
 
+    printf("\n=== Lua Top-level Constants===\n");
+    int numConsant = loadInt(&fileBase);
+    printf("Number of constants: %d\n", numConsant);
+
+    // About Constants List In Lua
+    // (1) Lua function itself is a Proto structure defined in `lobject.h` 
+    // (2) Constants are Proto.k, an array of TValue.
+    // (3) TValue is also defined in `lobject.h`. It owns two fields: value(of type Value), tt_(of type int).
+    //      (3.1) Value type is a C Union of lua_Integer, lua_Number, lua_CFunction, ... etc.
+    //      (3.2) tt_ itself is a int, indicating the type of that TValue
+    //      (3.3) Defined by macro in lua.h, the low byte(0-3 bits) of tt_ decides the type by:
+    //               #define LUA_TNIL                0
+    //               #define LUA_TBOOLEAN            1
+    //               #define LUA_TNUMBER             3
+    //               #define LUA_TSTRING             4
+    //
+
+    for (int i = 0; i < numConsant; ++i)
+    {
+        // Constant Layout: 
+        //  (1) 1 byte of type constant
+        //  (2) variant bytes of constant content
+
+        // The low byte(0-3) bits of tt_ w.r.t. constant decides the type
+        int constType = loadByte(&fileBase);
+        int nonvarTag = fstByte(constType);
+        int varTag    = scdByte(constType);
+        // printf("Offset In Bytes: %ld\n", fileBase - initBase);
+        printf("Constant ID: %d\n", constType);
+        switch(nonvarTag)
+        {
+            case 0:
+                printf("Constant Type: NIL\n");
+                break;
+            case 1:
+                printf("Constant Type: Boolean\n");
+                break;
+            case 3:
+                if (varTag == 0)
+                {
+                    printf("Constant Type: Number(Double)\n");
+                    printf("Constant Content: %lf\n", loadAndProceed<lua_Number>(&fileBase));
+                } else {
+                    printf("Constant Type: Number(Integer)\n");
+                    printf("Constant Content: %ld\n", loadAndProceed<lua_Integer>(&fileBase));
+                }
+                break;
+            case 4:
+                printf("Constant Type: String\n");
+                printf("Constant Content: ");
+                cout << loadString(&fileBase) << endl;
+                break;
+            default:
+                printf("Unknown Type\n");
+                break;
+        }
+        printf("\n");
+    }
 
 }
 

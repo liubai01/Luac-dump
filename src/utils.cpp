@@ -91,3 +91,12 @@ int loadInt(unsigned char** addr)
     *addr = nowAddr;
     return ret;
 }
+
+
+unsigned char loadByte(unsigned char** addr)
+{
+    unsigned ret = (*addr)[0];
+    ++(*addr);
+
+    return ret;
+}
