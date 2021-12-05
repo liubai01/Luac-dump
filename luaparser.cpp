@@ -19,6 +19,7 @@ using namespace std;
 // Refer to A No-Frills Introduction to Lua 5.1 VM Instructions
 
 #define lua_Integer long
+#define Instruction unsigned int
 
 #pragma pack(push,1)
 typedef struct HeaderBlock {
@@ -152,9 +153,19 @@ void printFunctionBlock(unsigned char* fileBase)
     printf("%d", fb.Lua_MaxStackSize);
     printf("\n");
 
-    printf("=== Lua Top-level function code===\n");
+    printf("\n=== Lua Top-level function code===\n");
     int numInstr = loadInt(&fileBase);
     printf("Number of instructions: %d\n", numInstr);
+
+    for(int i = 0; i < numInstr; ++i)
+    {
+        Instruction asbly_code = static_cast<Instruction>(*fileBase);
+
+        printf("[instr %d] [optcode %2d] [A %2d]: 0x", i, asbly_code & 0x3f, asbly_code &0xfc0);
+        printHex(asbly_code);
+        printf("\n");
+        fileBase += sizeof(int);
+    }
 
 
 }
