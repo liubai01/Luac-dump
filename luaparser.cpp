@@ -10,121 +10,11 @@
 #include <cassert>
 
 #include "src/utils.hpp"
+#include "src/ldump.hpp"
 
 using namespace std;
 
 
-
-// Refer to A No-Frills Introduction to Lua 5.1 VM Instructions
-
-#define lua_Integer  long
-#define lua_Number   double
-#define Instruction  unsigned int
-
-#define LUA_TNUMFLT (3 | (0 << 4))  /* float numbers */
-#define LUA_TNUMINT (3 | (1 << 4))  /* integer numbers */
-
-#pragma pack(push,1)
-typedef struct HeaderBlock {
-    unsigned int     Lua_Signature;       // Header signature: ESC, “Lua” or 0x1B4C7561
-    unsigned char    Lua_VerNumber;       // Version number, 0x53 for Lua 5.3
-    unsigned char    Lua_FormatVer;       // Format version, 0=official version
-    unsigned char    Lua_Data[6];         // Data To Catch Conversion Errors
-
-    unsigned char    Lua_SizeInt;         // Size of integer (in bytes) (default 4)
-    unsigned char    Lua_SizeSizeT;       // Size of size_t (in bytes) (default 8 on 64-bits OS)
-    unsigned char    Lua_SizeInstr;       // Size of Instruction (in bytes) (default 4)
-    unsigned char    Lua_SizeLuaInt;      // Size of lua_Integer (in bytes) (default 8)
-    unsigned char    Lua_SizeLuaNum;      // Size of lua_Number (in bytes) (default 8)
-
-    lua_Integer      Lua_ExampleInt;      // 0x5678
-    lua_Number       Lua_ExampleNum;      // cast_num(370.5)
-
-    unsigned char    Lua_SizeUpvalues;    // Size of up values (in bytes) (default 1)
-
-} HeaderBlock;
-#pragma pack(pop)
-
-#pragma pack(push,1)
-typedef struct FuncBlock {
-    int               Lua_LineDefined;
-    int               Lua_LastLineDefined;
-
-    unsigned char     Lua_NumParam;
-    unsigned char     Lua_VarArgFlag;
-    unsigned char     Lua_MaxStackSize;
-} FuncBlock;
-#pragma pack(pop)
-
-
-
-void printHeaderBlock(unsigned char* fileBase)
-{
-    // parse the header by structure
-    HeaderBlock hb;
-    std::memcpy(&hb, fileBase, sizeof(HeaderBlock));
-
-    // print the parsed header
-    printf("Size of header block: %ld\n", sizeof(HeaderBlock));
-    printf("=== Lua Metadata ===\n");
-    printf("Lua Signature: ");
-    printHex(hb.Lua_Signature);
-    printf("\n");
-
-    printf("Lua Version: ");
-    printf("%d.%d", hghByte(hb.Lua_VerNumber), lowByte(hb.Lua_VerNumber));
-    printf("\n");
-
-    printf("Lua Format Version(Official=0): ");
-    printf("%d", hb.Lua_FormatVer);
-    printf("\n");
-
-    printf("Lua Data(detect conversion error, \\x19\\x93\\r\\n\\x1a\\n): ");
-    printHex(hb.Lua_Data, 6);
-    printf("\n");
-
-    printf("\n");
-
-
-    printf("=== Lua Sizes ===\n");
-    printf("Lua Size of Integer: ");
-    printf("%d", hb.Lua_SizeInt);
-    printf("\n");
-
-    printf("Lua Size of size_t: ");
-    printf("%d", hb.Lua_SizeSizeT);
-    printf("\n");
-
-
-    printf("Lua Size of Instruction: ");
-    printf("%d", hb.Lua_SizeInstr);
-    printf("\n");
-
-    printf("Lua Size of Lua Integer: ");
-    printf("%d", hb.Lua_SizeLuaInt);
-    printf("\n");
-    assert(static_cast<size_t>(hb.Lua_SizeLuaInt) == sizeof(lua_Integer));
-
-    printf("Lua Size of Lua Number: ");
-    printf("%d", hb.Lua_SizeLuaNum);
-    printf("\n");
-
-    printf("Lua Size of Up value: ");
-    printf("%d", hb.Lua_SizeUpvalues);
-    printf("\n");
-
-    printf("\n");
-
-    printf("Lua Size of Example Int(0x5678=22146): ");
-    printf("%ld", hb.Lua_ExampleInt);
-    printf("\n");
-
-    printf("Lua Size of Example Num(370.5): ");
-    printf("%lf", hb.Lua_ExampleNum);
-    printf("\n");
-
-    printf("\n");
-}
 
 void printFunctionBlock(unsigned char* fileBase)
 {
@@ -325,7 +215,9 @@ int main(int argc, char* argv[])
         0, fileSize, PROT_READ, MAP_PRIVATE, fd, 0);
     close(fd);
 
-    printHeaderBlock(fileBase);
+    Dumped d(fileBase);
+    d.printHeaderBlock();
+
     printFunctionBlock(fileBase);
 
     return 0;

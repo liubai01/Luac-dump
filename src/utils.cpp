@@ -26,7 +26,6 @@ void printChar(unsigned char c)
     return;
 }
 
-
 // specialization for print in hex
 void printHex(unsigned char* str, int s)
 {
@@ -34,6 +33,21 @@ void printHex(unsigned char* str, int s)
     {
         printChar(str[i]);
     }
+}
+
+string sprintHex(unsigned char* str, int s)
+{
+    string ret = "";
+    char buf[3];
+    buf[2] = '\0';
+
+    for (int i = 0; i < s; ++i)
+    {
+        sprintf(buf, "%x%x", (str[i] & 0xF0) >> 4, str[i] & 0x0F);
+        ret += string(buf);
+    }
+    
+    return ret;
 }
 
 

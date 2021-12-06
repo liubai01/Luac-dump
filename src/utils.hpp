@@ -13,6 +13,7 @@ int getFileSize(int fd);
 
 void printChar(unsigned char c);
 
+
 template<class T>
 void printHex(T ui)
 {
@@ -23,7 +24,25 @@ void printHex(T ui)
     }
 }
 
+template<class T>
+string sprintHex(T ui)
+{
+    string ret = "";
+    char* tmp = reinterpret_cast<char*>(&ui);
+    char buf[3];
+    buf[2] = '\0';
+
+    for (size_t i = 0; i < sizeof(ui); ++i)
+    {
+        sprintf(buf, "%x%x", (tmp[i] & 0xF0) >> 4, tmp[i] & 0x0F);
+        ret += string(buf);
+    }
+
+    return ret;
+}
+
 void printHex(unsigned char* str, int s);
+string sprintHex(unsigned char* str, int s);
 
 // non-specialized template must be visible to a translation unit that uses it.
 template<class T>

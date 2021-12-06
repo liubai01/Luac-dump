@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-g -pedantic # -Wall -Werror -Wextra
 SOURCEDIR = src
 BUILDDIR = build
-OBJECTS = utils
+OBJECTS = utils lproto ldump
 
 .PHONY: all
 all: luaparser
