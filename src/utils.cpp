@@ -26,33 +26,8 @@ void printChar(unsigned char c)
     return;
 }
 
-void printHex(unsigned int ui)
-{
-    unsigned char* tmp = reinterpret_cast<unsigned char*>(&ui);
-    for (int i = 0; i < 4; ++i)
-    {
-        printChar(tmp[i]);
-    }
-}
 
-void printHex(unsigned long long ui)
-{
-    unsigned char* tmp = reinterpret_cast<unsigned char*>(&ui);
-    for (int i = 0; i < 8; ++i)
-    {
-        printChar(tmp[i]);
-    }
-}
-
-void printHexLittleEndian(unsigned long long ui)
-{
-    unsigned char* tmp = reinterpret_cast<unsigned char*>(&ui);
-    for (int i = 7; i >= 0; --i)
-    {
-        printChar(tmp[i]);
-    }
-}
-
+// specialization for print in hex
 void printHex(unsigned char* str, int s)
 {
     for (int i = 0; i < s; ++i)
@@ -61,7 +36,10 @@ void printHex(unsigned char* str, int s)
     }
 }
 
-string loadString(unsigned char** addr)
+
+// specialization for load and proceed
+template<>
+string loadAndProceed(unsigned char** addr)
 {
     unsigned char* nowAddr = *addr;
     string ret = "";
@@ -78,22 +56,10 @@ string loadString(unsigned char** addr)
     return ret;
 }
 
-int loadInt(unsigned char** addr)
-{
-    unsigned char* nowAddr = *addr;
-    int ret = 0;
-    unsigned char* toAddr = reinterpret_cast<unsigned char*>(&ret);
 
-    std::memcpy(&ret, nowAddr, sizeof(int));
-
-    nowAddr += sizeof(int);
-
-    *addr = nowAddr;
-    return ret;
-}
-
-
-unsigned char loadByte(unsigned char** addr)
+// more efficient
+template<>
+unsigned char loadAndProceed(unsigned char** addr)
 {
     unsigned ret = (*addr)[0];
     ++(*addr);

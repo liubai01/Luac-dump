@@ -13,8 +13,7 @@
 
 using namespace std;
 
-#define hghByte(X) ((X & 0xf0) >> 4)     // second half if bytes (high half byte)
-#define lowByte(X) (X & 0x0f)            // first half of bytes  (low half byte)
+
 
 // Refer to A No-Frills Introduction to Lua 5.1 VM Instructions
 
@@ -38,7 +37,7 @@ typedef struct HeaderBlock {
     unsigned char    Lua_SizeLuaInt;      // Size of lua_Integer (in bytes) (default 8)
     unsigned char    Lua_SizeLuaNum;      // Size of lua_Number (in bytes) (default 8)
 
-    lua_Integer      Lua_ExampleInt;      // 0x5678 (little endian)
+    lua_Integer      Lua_ExampleInt;      // 0x5678
     lua_Number       Lua_ExampleNum;      // cast_num(370.5)
 
     unsigned char    Lua_SizeUpvalues;    // Size of up values (in bytes) (default 1)
@@ -116,11 +115,11 @@ void printHeaderBlock(unsigned char* fileBase)
 
     printf("\n");
 
-    printf("Lua Size of Example Int: ");
-    printHexLittleEndian(hb.Lua_ExampleInt);
+    printf("Lua Size of Example Int(0x5678=22146): ");
+    printf("%ld", hb.Lua_ExampleInt);
     printf("\n");
 
-    printf("Lua Size of Example Num: ");
+    printf("Lua Size of Example Num(370.5): ");
     printf("%lf", hb.Lua_ExampleNum);
     printf("\n");
 
@@ -134,7 +133,7 @@ void printFunctionBlock(unsigned char* fileBase)
 
     printf("=== Lua Function(chunk) Metadata===\n");
     printf("Source name: ");
-    cout << loadString(&fileBase) << endl;
+    cout << loadAndProceed<string>(&fileBase) << endl;
 
     FuncBlock fb;
     std::memcpy(&fb, fileBase, sizeof(FuncBlock));
@@ -159,7 +158,7 @@ void printFunctionBlock(unsigned char* fileBase)
     printf("\n");
 
     printf("\n=== Lua Top-level Function Code===\n");
-    int numInstr = loadInt(&fileBase);
+    int numInstr = loadAndProceed<int>(&fileBase);
     printf("Number of instructions: %d\n", numInstr);
 
     for(int i = 0; i < numInstr; ++i)
@@ -175,7 +174,7 @@ void printFunctionBlock(unsigned char* fileBase)
     }
 
     printf("\n=== Lua Top-level Constants===\n");
-    int numConsant = loadInt(&fileBase);
+    int numConsant = loadAndProceed<int>(&fileBase);
     printf("Number of constants: %d\n", numConsant);
 
     // About Constants List In Lua
@@ -198,7 +197,7 @@ void printFunctionBlock(unsigned char* fileBase)
         //  (2) variant bytes of constant content
 
         // The low byte(0-3) bits of tt_ w.r.t. constant decides the type
-        int constType = loadByte(&fileBase);
+        int constType = loadAndProceed<unsigned char>(&fileBase);
         int nonvarTag = lowByte(constType);
         int varTag    = hghByte(constType);
         // printf("Offset In Bytes: %ld\n", fileBase - initBase);
@@ -225,7 +224,7 @@ void printFunctionBlock(unsigned char* fileBase)
             case 4:
                 printf("Constant Type: String\n");
                 printf("Constant Content: ");
-                cout << loadString(&fileBase) << endl;
+                cout << loadAndProceed<string>(&fileBase) << endl;
                 break;
             default:
                 printf("Unknown Type\n");
@@ -235,19 +234,19 @@ void printFunctionBlock(unsigned char* fileBase)
     }
 
     printf("=== Lua Up Values ===\n");
-    int numUpVal = loadInt(&fileBase);
+    int numUpVal = loadAndProceed<int>(&fileBase);
     // assert(numNestedFunc == 0);
     printf("Up Values Num: %d\n", numUpVal);
     for (int i = 0; i < numUpVal; ++i)
     {
-        int instack = loadByte(&fileBase);  // whether it is in stack (register)
-        int idx     = loadByte(&fileBase);  // index of upvalue (in stack or in outer function's list)
+        int instack = loadAndProceed<unsigned char>(&fileBase);  // whether it is in stack (register)
+        int idx     = loadAndProceed<unsigned char>(&fileBase);  // index of upvalue (in stack or in outer function's list)
 
         printf("Up values[%d]: instack?: %d, idx: %d\n", i, instack, idx);
     }
 
     printf("\n=== Lua Nested Functions (Protos) ===\n");
-    int numNestedFuncs = loadInt(&fileBase);
+    int numNestedFuncs = loadAndProceed<int>(&fileBase);
     printf("Nested Function Nums: %d\n", numNestedFuncs);
     assert (numNestedFuncs == 0); // TBD, for nested functions
 
@@ -255,14 +254,14 @@ void printFunctionBlock(unsigned char* fileBase)
     printf("map from opcodes to source lines (debug information)\n");
     // It is stored in Proto structure's lineinfo, as int* (an integer array)
 
-    int numLineInfo = loadInt(&fileBase);
+    int numLineInfo = loadAndProceed<int>(&fileBase);
     for (int i = 0; i < numLineInfo; ++i)
     {
-        printf("opcode line [%d] -> source code line [%d]\n", i, loadInt(&fileBase));
+        printf("opcode line [%d] -> source code line [%d]\n", i, loadAndProceed<int>(&fileBase));
     }
 
     printf("\n=== Debug Infos - Local Variables ===\n");
-    int numLocVars = loadInt(&fileBase);
+    int numLocVars = loadAndProceed<int>(&fileBase);
     printf("Number of local variables %d\n", numLocVars);
 
     // local variable debug info is stored in Proto structure's LocVar *locvars
@@ -280,14 +279,14 @@ void printFunctionBlock(unsigned char* fileBase)
         // DumpInt(f->locvars[i].startpc, D);
         // DumpInt(f->locvars[i].endpc, D);
 
-        cout << "[Name: " << loadString(&fileBase) << "]" << " ";
-        printf("start pc: %d, ", loadInt(&fileBase));
-        printf("end pc: %d\n", loadInt(&fileBase));
+        cout << "[Name: " << loadAndProceed<string>(&fileBase) << "]" << " ";
+        printf("start pc: %d, ", loadAndProceed<int>(&fileBase));
+        printf("end pc: %d\n", loadAndProceed<int>(&fileBase));
 
     }
 
     printf("\n=== Debug Infos - Up Values Names ===\n");
-    int numUpVals = loadInt(&fileBase);
+    int numUpVals = loadAndProceed<int>(&fileBase);
     printf("Number of up values %d\n", numUpVals);
 
     // by default, there is a _ENV, you could refer to lua-users.org/wiki/EnvironmentsTutorial
@@ -295,7 +294,7 @@ void printFunctionBlock(unsigned char* fileBase)
     for (int i = 0; i < numUpVals; ++i)
     {
 
-        cout << "[Name: " << loadString(&fileBase) << "]" << endl;
+        cout << "[Name: " << loadAndProceed<string>(&fileBase) << "]" << endl;
 
     }
 }
