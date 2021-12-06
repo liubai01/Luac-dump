@@ -281,7 +281,8 @@ void printFunctionBlock(unsigned char* fileBase)
         // DumpInt(f->locvars[i].endpc, D);
 
         cout << "[Name: " << loadString(&fileBase) << "]" << " ";
-        printf("start pc: %d, end pc: %d\n", loadInt(&fileBase), loadInt(&fileBase));
+        printf("start pc: %d, ", loadInt(&fileBase));
+        printf("end pc: %d\n", loadInt(&fileBase));
 
     }
 
