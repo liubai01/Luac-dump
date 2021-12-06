@@ -13,8 +13,8 @@
 
 using namespace std;
 
-#define scdByte(X) ((X & 0xf0) >> 4)
-#define fstByte(X) (X & 0x0f)
+#define hghByte(X) ((X & 0xf0) >> 4)     // second half if bytes (high half byte)
+#define lowByte(X) (X & 0x0f)            // first half of bytes  (low half byte)
 
 // Refer to A No-Frills Introduction to Lua 5.1 VM Instructions
 
@@ -73,7 +73,7 @@ void printHeaderBlock(unsigned char* fileBase)
     printf("\n");
 
     printf("Lua Version: ");
-    printf("%d.%d", scdByte(hb.Lua_VerNumber), fstByte(hb.Lua_VerNumber));
+    printf("%d.%d", hghByte(hb.Lua_VerNumber), lowByte(hb.Lua_VerNumber));
     printf("\n");
 
     printf("Lua Format Version(Official=0): ");
@@ -199,8 +199,8 @@ void printFunctionBlock(unsigned char* fileBase)
 
         // The low byte(0-3) bits of tt_ w.r.t. constant decides the type
         int constType = loadByte(&fileBase);
-        int nonvarTag = fstByte(constType);
-        int varTag    = scdByte(constType);
+        int nonvarTag = lowByte(constType);
+        int varTag    = hghByte(constType);
         // printf("Offset In Bytes: %ld\n", fileBase - initBase);
         printf("Constant ID: %d\n", constType);
         switch(nonvarTag)
