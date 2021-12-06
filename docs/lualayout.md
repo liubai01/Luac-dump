@@ -29,6 +29,36 @@ The dumped lua binary files start with header block.
 
 By default on 64-bit machines, `Lua_Integer` is 8 bytes(long) and `Lua_Number` is also 8 bytes(double).
 
+**Example:**
+
+```bash
+    Offset               Content            Desciption
+======================================================
+                                                      
+                                  Lua Metadata        
+                                                      
+0x00000000  0x1b4c7561            Lua signature       
+0x00000004  0x53                  Lua version         
+0x00000005  0x00                  Lua Format Version  
+0x00000006  0x19930d0a1a0a        Lua Data            
+                                                      
+                                  Lua Metadata(Sizes) 
+                                                      
+0x00000007  0x04                  Size of Integer     
+0x00000008  0x08                  Size of size_t      
+0x00000009  0x04                  Size of Instruction 
+0x0000000a  0x08                  Size of Lua Integer 
+0x0000000b  0x08                  Size of Lua Number  
+0x0000000c  0x01                  Size of Up Values   
+0x0000000d  22136                 Size of Example Lua 
+                                  Integer (0x5678=2214
+                                  6)                  
+0x00000015  370.500000            Size of Example Lua 
+                                  Number (370.5)      
+                                                      
+0x0000001d                        End of table  
+```
+
 ### Top-level function block
 
 After head block, here comes the top-level function block. 
