@@ -4,8 +4,17 @@ SOURCEDIR = src
 BUILDDIR = build
 OBJECTS = utils lproto ldump
 
+LUAS = aequalsix hello localx minimal
+LUAC = luac5.3
+LUASDIR = luas
+
 .PHONY: all
 all: luaparser
+
+luas: $(addsuffix .luac, $(LUAS))
+
+%.luac: $(LUASDIR)/%.lua
+	$(LUAC) -o $(LUASDIR)/$@ $^
 
 luaparser: luaparser.o $(addsuffix .o, $(OBJECTS))
 	$(CC) -o $@ $(addprefix $(BUILDDIR)/,$^) $(CFLAGS)
@@ -19,3 +28,5 @@ luaparser.o: luaparser.cpp
 .PHONY: clean
 clean:
 	rm -f $(BUILDDIR)/*.o
+# 	rm -f $(LUASDIR)/*.luac
+	rm -f luaparser
