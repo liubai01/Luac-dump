@@ -189,6 +189,103 @@ void printFunctionBlock(unsigned char* fileBase)
     }
 }
 
+int getFunctionBlockSize(unsigned char* baseAddr)
+{
+    unsigned char* initBase = baseAddr;
+
+    // source name
+    loadAndProceed<string>(&baseAddr);
+
+    // base
+    baseAddr = baseAddr + sizeof(FuncBlock);
+
+    // instruction list
+    int numInstr = loadAndProceed<int>(&baseAddr);
+    baseAddr += sizeof(int) * numInstr;
+   
+    // constant list
+    int numConsant = loadAndProceed<int>(&baseAddr);
+
+    for (int i = 0; i < numConsant; ++i)
+    {
+        // Constant Layout: 
+        //  (1) 1 byte of type constant
+        //  (2) variant bytes of constant content
+
+        // The low byte(0-3) bits of tt_ w.r.t. constant decides the type
+        int constType = loadAndProceed<unsigned char>(&baseAddr);
+        int nonvarTag = lowByte(constType);
+        int varTag    = hghByte(constType);
+
+        switch(nonvarTag)
+        {
+            case 0:
+                // NIL
+                break;
+            case 1:
+                // Boolean: TBD
+                break;
+            case 3:
+                if (varTag == 0)
+                {
+                    // double
+                    baseAddr += sizeof(lua_Number);
+                } else {
+                    // long
+                    baseAddr += sizeof(lua_Integer);
+                }
+                break;
+            case 4:
+                loadAndProceed<string>(&baseAddr);
+                break;
+            default:
+                // should not reach here
+                assert(0 == 1);
+                break;
+        }
+    }
+
+    // up value lists
+    int numUpVal = loadAndProceed<int>(&baseAddr);
+    baseAddr += 2 * numUpVal;
+
+    // nested function list
+    int numNestedFuncs = loadAndProceed<int>(&baseAddr);
+
+    for (int i = 0; i < numNestedFuncs; ++i)
+    {
+        baseAddr += getFunctionBlockSize(baseAddr);
+    }
+
+    // line info list (debug)
+    int numLineInfo = loadAndProceed<int>(&baseAddr);
+    baseAddr += sizeof(int) * numLineInfo;
+
+    // local vars (debug)
+    int numLocVars = loadAndProceed<int>(&baseAddr);
+    for (int i = 0; i < numLocVars; ++i)
+    {
+        // original dump code in ldump.c DumpDebug function for reference: 
+        // DumpString(f->locvars[i].varname, D);
+        // DumpInt(f->locvars[i].startpc, D);
+        // DumpInt(f->locvars[i].endpc, D);
+
+        loadAndProceed<string>(&baseAddr);
+        baseAddr += sizeof(int) * 2;
+    }
+
+    // Up Values Names
+    int numUpVals = loadAndProceed<int>(&baseAddr);
+
+    // by default, there is a _ENV, you could refer to lua-users.org/wiki/EnvironmentsTutorial
+    for (int i = 0; i < numUpVals; ++i)
+    {
+        loadAndProceed<string>(&baseAddr);
+    }
+
+    return baseAddr - initBase;
+}
+
 int main(int argc, char* argv[])
 {
     string filename;
@@ -218,7 +315,8 @@ int main(int argc, char* argv[])
     Dumped d(fileBase);
     d.printHeaderBlock();
 
-    printFunctionBlock(fileBase);
+    // printFunctionBlock(fileBase);
+    // cout << getFunctionBlockSize(fileBase + sizeof(HeaderBlock)) << endl;
 
     return 0;
 }

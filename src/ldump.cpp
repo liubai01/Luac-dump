@@ -52,7 +52,7 @@ void Dumped::printHeaderBlock()
     o += sizeof(hb.Lua_VerNumber);
 
     lt.push_back(o, "0x" + sprintHex(hb.Lua_Data, 6), "Lua Data");
-    o += sizeof(hb.Lua_VerNumber);
+    o += 6;
 
     lt.push_back(-1, " ", " ");
     lt.push_back(-1, " ", "Lua Metadata(Sizes)");
@@ -75,23 +75,24 @@ void Dumped::printHeaderBlock()
     o += sizeof(hb.Lua_SizeLuaNum);
     assert(static_cast<size_t>(hb.Lua_SizeLuaNum) == sizeof(lua_Number));
 
-    lt.push_back(o, "0x" + sprintHex(hb.Lua_SizeUpvalues), "Size of Up Values");
-    o += sizeof(hb.Lua_SizeUpvalues);
-
     char buf[30];
 
     sprintf(buf, "%ld", hb.Lua_ExampleInt);
-    lt.push_back(o, string(buf), "Size of Example Lua Integer (0x5678=22146)");
+    lt.push_back(o, string(buf), "Example Lua Integer (0x5678=22146)");
     o += sizeof(hb.Lua_ExampleInt);
 
     sprintf(buf, "%lf", hb.Lua_ExampleNum);
-    lt.push_back(o, string(buf), "Size of Example Lua Number (370.5)");
+    lt.push_back(o, string(buf), "Example Lua Number (370.5)");
     o += sizeof(hb.Lua_ExampleNum);
+
+    lt.push_back(o, "0x" + sprintHex(hb.Lua_SizeUpvalues), "Size of Up Values");
+    o += sizeof(hb.Lua_SizeUpvalues);
 
     lt.push_back(-1, " ", " ");
     lt.push_back(o, " ", "End of table");
 
     lt.print_table();
+    cout << "Table Size: " << o << endl;
 }
 
 void LayoutTable::push_back(size_t offset, string content, string desc)
