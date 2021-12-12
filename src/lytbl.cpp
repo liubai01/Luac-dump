@@ -17,7 +17,7 @@ void LayoutTable::print_table()
 {   
     int owidth = 10;
     int cwidth = 12;
-    int dwidth = 28;
+    int dwidth = 36;
     vector<int> widths = {owidth, cwidth, dwidth};
     string fmt = "";
     for (int i = 0; i < widths.size() - 1; ++i)
@@ -46,16 +46,11 @@ void LayoutTable::print_table()
 
     printf("|\n");
 
-    // for (int i = 0; i < 54; ++i)
-    // {
-    //     printf("=");
-    // }
 
     for (int i = 0; i < offsets.size(); ++i)
     {
         int o = offsets[i];
 
-        // int rows = ceil((double) max(contents[i].size(), descs[i].size()) / LayoutTableStringWidth);
 
         int rows = ceil(
             max(
@@ -63,9 +58,6 @@ void LayoutTable::print_table()
                 ((double) descs[i].size()) / widths[2]
             )
         ); 
-        // cout << rows << endl;
-        // cout << ((double) contents[i].size()) << endl;
-        // cout << ((double) descs[i].size()) << endl;
 
         string ofmt = "| 0x%" + string_format("0%dx", widths[0] - 2);
         string cdfmt = " | %-" + to_string(widths[1]) + "s | %-" + to_string(widths[2]) + "s | \n";

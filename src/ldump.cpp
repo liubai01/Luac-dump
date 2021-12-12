@@ -139,7 +139,7 @@ void Dumped::printHeaderBlock()
     int o = 0;
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* Lua Metadata");
+    lt.push_back(-1, " ", "**Lua Metadata**");
     lt.push_back(-1, " ", " ");
 
     lt.push_back(o, "0x" + sprintHex(hb.Lua_Signature), "Lua signature");
@@ -156,7 +156,7 @@ void Dumped::printHeaderBlock()
     o += 6;
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* Lua Metadata(Sizes)");
+    lt.push_back(-1, " ", "**Lua Metadata(Sizes)**");
     lt.push_back(-1, " ", " ");
 
     lt.push_back(o, "0x" + sprintHex(hb.Lua_SizeInt), "Size of Integer");
@@ -177,7 +177,7 @@ void Dumped::printHeaderBlock()
     assert(static_cast<size_t>(hb.Lua_SizeLuaNum) == sizeof(lua_Number));
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* Lua Examples");
+    lt.push_back(-1, " ", "**Lua Examples**");
     lt.push_back(-1, " ", " ");
 
     char buf[30];
@@ -199,19 +199,109 @@ void Dumped::printHeaderBlock()
     lt.push_back(o, " ", "End of table");
 
     lt.print_table();
+
+    printf("\n");
     cout << "Table Size: " << o << endl;
 }
 
-void Dumped::printFunctionBlock()
+vector<unsigned char*> Dumped::subFuncsAddrs(unsigned char* startAddr)
+{
+    vector<unsigned char*> ret;
+
+    unsigned char* baseAddr;
+
+    if (startAddr)
+    {
+        baseAddr = startAddr;
+    } else {
+        baseAddr = bytecodeAddr + sizeof(HeaderBlock);
+    }
+
+    // source name
+    loadAndProceed<string>(&baseAddr);
+
+    // base
+    baseAddr = baseAddr + sizeof(FuncBlock);
+
+    // instruction list
+    int numInstr = loadAndProceed<int>(&baseAddr);
+    baseAddr += sizeof(int) * numInstr;
+   
+
+    // constant list
+    int numConsant = loadAndProceed<int>(&baseAddr);
+
+    for (int i = 0; i < numConsant; ++i)
+    {
+        // Constant Layout: 
+        //  (1) 1 byte of type constant
+        //  (2) variant bytes of constant content
+
+        // The low byte(0-3) bits of tt_ w.r.t. constant decides the type
+        int constType = loadAndProceed<unsigned char>(&baseAddr);
+        int nonvarTag = lowByte(constType);
+        int varTag    = hghByte(constType);
+
+        switch(nonvarTag)
+        {
+            case 0:
+                // NIL
+                break;
+            case 1:
+                // Boolean: TBD
+                break;
+            case 3:
+                if (varTag == 0)
+                {
+                    // double
+                    baseAddr += sizeof(lua_Number);
+                } else {
+                    // long
+                    baseAddr += sizeof(lua_Integer);
+                }
+                break;
+            case 4:
+                loadAndProceed<string>(&baseAddr);
+                break;
+            default:
+                // should not reach here
+                assert(0 == 1);
+                break;
+        }
+    }
+
+    // up value lists
+    int numUpVal = loadAndProceed<int>(&baseAddr);
+    baseAddr += 2 * numUpVal;
+
+    // nested function list
+    int numNestedFuncs = loadAndProceed<int>(&baseAddr);
+
+    for (int i = 0; i < numNestedFuncs; ++i)
+    {
+        ret.push_back(baseAddr);
+        baseAddr += getFunctionBlockSize(baseAddr);
+    }
+
+    return ret;
+}
+
+void Dumped::printFunctionBlock(unsigned char* startAddr)
 {
     LayoutTable lt;
     int o; // save the offset
 
     unsigned char* initBase = bytecodeAddr;
-    bytecodeAddr = bytecodeAddr + sizeof(HeaderBlock);
+    unsigned char* bytecodeAddr;
+
+    if (startAddr) {
+        bytecodeAddr = startAddr;
+    } else {
+        bytecodeAddr = this->bytecodeAddr + sizeof(HeaderBlock);
+    }
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* Lua Function Metadata");
+    lt.push_back(-1, " ", "**Lua Function Metadata**");
     lt.push_back(-1, " ", " ");
 
 
@@ -244,7 +334,7 @@ void Dumped::printFunctionBlock()
     bytecodeAddr = bytecodeAddr + sizeof(fb.Lua_MaxStackSize);
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* Function Instructions");
+    lt.push_back(-1, " ", "**Function Instructions**");
     lt.push_back(-1, " ", " ");
 
     o = bytecodeAddr - initBase;
@@ -253,7 +343,6 @@ void Dumped::printFunctionBlock()
 
     for(int i = 0; i < numInstr; ++i)
     {
-        // Instruction asbly_code = static_cast<Instruction>(*bytecodeAddr);
         Instruction asbly_code = loadAndProceed<Instruction>(&bytecodeAddr);
 
         // 0x3f  : [0, 5 ] bits mask = 00000000111111
@@ -264,7 +353,7 @@ void Dumped::printFunctionBlock()
     }
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* Constants");
+    lt.push_back(-1, " ", "**Constants**");
     lt.push_back(-1, " ", " ");
 
     o = bytecodeAddr - initBase;
@@ -341,7 +430,7 @@ void Dumped::printFunctionBlock()
     }
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* UpValues");
+    lt.push_back(-1, " ", "**UpValues**");
     lt.push_back(-1, " ", " ");
 
     o = bytecodeAddr - initBase;
@@ -372,7 +461,7 @@ void Dumped::printFunctionBlock()
     }
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* Nested Functions");
+    lt.push_back(-1, " ", "**Nested Functions**");
     lt.push_back(-1, " ", " ");
 
     o = bytecodeAddr - initBase;
@@ -393,7 +482,7 @@ void Dumped::printFunctionBlock()
     }
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* Debug Infos - Line Info(opcode -> src. line)");
+    lt.push_back(-1, " ", "**Debug Infos - Line Info(opcode -> src. line)**");
     lt.push_back(-1, " ", " ");
     // map from opcodes to source lines (debug information)
     // It is stored in Proto structure's lineinfo, as int* (an integer array)
@@ -411,7 +500,7 @@ void Dumped::printFunctionBlock()
     }
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* Debug Infos - Local Variables");
+    lt.push_back(-1, " ", "**Debug Infos - Local Variables**");
     lt.push_back(-1, " ", " ");
 
     o = bytecodeAddr - initBase;
@@ -457,7 +546,7 @@ void Dumped::printFunctionBlock()
     }
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "* Debug Infos - Up Values Names");
+    lt.push_back(-1, " ", "**Debug Infos - Up Values Names**");
     lt.push_back(-1, " ", " ");
 
     o = bytecodeAddr - initBase;
@@ -482,5 +571,7 @@ void Dumped::printFunctionBlock()
     lt.print_table();
 
     o = bytecodeAddr - initBase - sizeof(HeaderBlock);
+
+    printf("\n");
     cout << "Table Size: " << o << endl;
 }

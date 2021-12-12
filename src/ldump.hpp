@@ -55,7 +55,9 @@ public:
     unsigned char* bytecodeAddr;
 
     void printHeaderBlock();
-    void printFunctionBlock();
+    void printFunctionBlock(unsigned char* startAddr=nullptr);
+
+    vector<unsigned char*> subFuncsAddrs(unsigned char* startAddr=nullptr);
 };
 
 #endif
