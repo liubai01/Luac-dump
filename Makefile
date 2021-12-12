@@ -9,17 +9,17 @@ LUAC = luac5.3
 LUASDIR = luas
 
 .PHONY: all
-all: luaparser
+all: luacformatter
 
 luas: $(addsuffix .luac, $(LUAS))
 
 %.luac: $(LUASDIR)/%.lua
 	$(LUAC) -o $(LUASDIR)/$@ $^
 
-luaparser: luaparser.o $(addsuffix .o, $(OBJECTS))
+luacformatter: luacformatter.o $(addsuffix .o, $(OBJECTS))
 	$(CC) -o $@ $(addprefix $(BUILDDIR)/,$^) $(CFLAGS)
 
-luaparser.o: luaparser.cpp
+luacformatter.o: luacformatter.cpp
 	$(CC) -c -o $(BUILDDIR)/$@ $< $(CFLAGS)
 
 %.o: $(SOURCEDIR)/%.cpp $(SOURCEDIR)/%.hpp
@@ -29,4 +29,7 @@ luaparser.o: luaparser.cpp
 clean:
 	rm -f $(BUILDDIR)/*.o
 # 	rm -f $(LUASDIR)/*.luac
-	rm -f luaparser
+	rm -f luacformatter
+
+package:
+	tar cJf luacFormatter.tar.xz Makefile build/DONOTREMOVEBUILDDIR src luacformatter.cpp
