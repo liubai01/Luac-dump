@@ -1,4 +1,7 @@
-# LuaLab1-Parser
+[![Main](https://github.com/liubai01/Lua-Lab1-luacFormatter/actions/workflows/c-cpp.yml/badge.svg?branch=main)](https://github.com/liubai01/Lua-Lab1-luacFormatter/actions/workflows/c-cpp.yml)
+
+# Lua-Lab1-LuacFormatter
+
 **Author**: `Yintao, Xu`
 
 **Email**: `yintao.xu@nyu.edu`
