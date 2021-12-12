@@ -4,7 +4,7 @@ SOURCEDIR = src
 BUILDDIR = build
 OBJECTS = utils lproto ldump
 
-LUAS = aequalsix hello localx minimal
+LUAS = aequalsix hello localx minimal subfunc
 LUAC = luac5.3
 LUASDIR = luas
 

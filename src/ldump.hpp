@@ -54,9 +54,8 @@ public:
 
     unsigned char* bytecodeAddr;
 
-    HeaderBlock hb;
-
     void printHeaderBlock();
+    void printFunctionBlock();
 };
 
 class LayoutTable {
