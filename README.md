@@ -12,8 +12,9 @@ In this lab, we aim at parsing lua5.3's dumped file(a.k.a lua byte code). Our go
 
 `./luacformatter <file> <options>`
 
-- **-h**: Print formatted header block.
-- **-f**: Print function block
+- **-h**: Print formatted header block memory layout
+- **-f**: Print function block memory layout
+- **-i**: Print instructions
 
 ## Example
 
@@ -116,6 +117,55 @@ Function[0]: Level 0
 
 Table Size: 72
 ```
+
+For such a lua program:
+
+```lua
+local a = 8
+function b(c) d = a + c end
+```
+
+Parsed by `luacformatter`:
+
+```bash
+$ ./luacformatter luas/subfunc.luac -i
+**function 0 (lvl. 0)**
+| 
+| .const
+| [0]  8
+| [1]  "b"
+| 
+| .local
+| [0]  "a"
+| 
+|     **function 0 (lvl. 1)**
+|     | 
+|     | .const
+|     | [0]  "d"
+|     | 
+|     | .local
+|     | [0]  "c"
+|     | 
+|     | .instructions
+|     | 
+|     | [0] 45008000
+|     | [1] 4d008000
+|     | [2] 08400080
+|     | [3] 26008000
+|     | 
+|     **end of func. [0] (lvl. 1)**
+| 
+| .instructions
+| 
+| [0] 01000000
+| [1] 6c000000
+| [2] 08408080
+| [3] 26008000
+| 
+**end of func. [0] (lvl. 0)**
+```
+
+
 
 ## Road map
 
