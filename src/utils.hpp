@@ -9,6 +9,10 @@
 
 using namespace std;
 
+#define lua_Integer  long
+#define lua_Number   double
+#define Instruction  unsigned int
+
 #define hghByte(X) ((X & 0xf0) >> 4)     // second half if bytes (high half byte, bit 2, 3)
 #define lowByte(X) (X & 0x0f)            // first half of bytes  (low half byte, bit 0, 1)
 

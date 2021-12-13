@@ -17,8 +17,8 @@ using namespace std;
 void printUsage()
 {
     cout << "Usage: ./luacformatter <file> <options>"                        << endl;
-    cout << "  -h                     Print header block."                   << endl;
-    cout << "  -f                     Print function block"                  << endl;
+    cout << "  -h                     Print header block memory layout"      << endl;
+    cout << "  -f                     Print function block memory layout"    << endl;
     cout << "  -i                     Print instructions"                    << endl;
 }
 

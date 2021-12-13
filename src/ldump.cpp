@@ -5,11 +5,7 @@
 #include <cassert>
 #include <iostream>
 
-#define printIndent(lvl) \
-for (int j = 0; j < lvl * 4; ++j) \
-{ \
-    printf(" "); \
-}
+
 
 using namespace std;
 
@@ -577,16 +573,9 @@ void Dumped::printFunctionBlock(unsigned char* startAddr)
     cout << "Table Size: " << o << endl;
 }
 
-void Dumped::printFunctionCompact(unsigned char* startAddr, int lvl, int idx)
+void __dumpProtos(unsigned char* startAddr, int lvl, int idx, Proto * proot)
 {
-    unsigned char* baseAddr;
-
-    if (startAddr)
-    {
-        baseAddr = startAddr;
-    } else {
-        baseAddr = bytecodeAddr + sizeof(HeaderBlock);
-    }
+    unsigned char* baseAddr = startAddr;
 
     // source name
     loadAndProceed<string>(&baseAddr);
@@ -596,19 +585,16 @@ void Dumped::printFunctionCompact(unsigned char* startAddr, int lvl, int idx)
 
     // instruction list
     int numInstr = loadAndProceed<int>(&baseAddr);
-    vector<Instruction> instrs;
     // lt.push_back(o, to_string(numInstr), "Number of instructions");
 
     for(int i = 0; i < numInstr; ++i)
     {
         Instruction asbly_code = loadAndProceed<Instruction>(&baseAddr);
-        instrs.push_back(asbly_code);
+        proot->instrs.push_back(asbly_code);
     }
 
     // constant list
     int numConsant = loadAndProceed<int>(&baseAddr);
-
-    vector<string> kdisplay{};
 
     for (int i = 0; i < numConsant; ++i)
     {
@@ -616,25 +602,24 @@ void Dumped::printFunctionCompact(unsigned char* startAddr, int lvl, int idx)
         int nonvarTag = lowByte(constType);
         int varTag    = hghByte(constType);
 
-
         switch(nonvarTag)
         {
             case 0:
-                kdisplay.push_back("NIL");
+                proot->kdisplay.push_back("NIL");
                 break;
             case 3:
                 if (varTag == 0)
                 {
-                    kdisplay.push_back(to_string(loadAndProceed<lua_Number>(&baseAddr)));
+                    proot->kdisplay.push_back(to_string(loadAndProceed<lua_Number>(&baseAddr)));
                 } else {
-                    kdisplay.push_back(to_string(loadAndProceed<lua_Integer>(&baseAddr)));
+                    proot->kdisplay.push_back(to_string(loadAndProceed<lua_Integer>(&baseAddr)));
                 }
                 break;
             case 4:
-                kdisplay.push_back("\"" + loadAndProceed<string>(&baseAddr) + "\"");
+                proot->kdisplay.push_back("\"" + loadAndProceed<string>(&baseAddr) + "\"");
                 break;
             default:
-                kdisplay.push_back("unknown");
+                proot->kdisplay.push_back("unknown");
                 break;
         }
     }
@@ -645,43 +630,44 @@ void Dumped::printFunctionCompact(unsigned char* startAddr, int lvl, int idx)
 
     // nested function list
     int numNestedFuncs = loadAndProceed<int>(&baseAddr);
-    vector<unsigned char*> subaddrs{};
 
     for (int i = 0; i < numNestedFuncs; ++i)
     {
-        subaddrs.push_back(baseAddr);
+        proot->subprotos.emplace_back();
+        __dumpProtos(
+            baseAddr, 
+            lvl + 1, 
+            idx, 
+            &proot->subprotos[proot->subprotos.size() - 1]
+        );
         baseAddr += getFunctionBlockSize(baseAddr);
     }
 
+
+    int numLineInfo = loadAndProceed<int>(&baseAddr);
+    baseAddr += sizeof(int) * numLineInfo;
+
+
+    int numLocVars = loadAndProceed<int>(&baseAddr);
+
+
+    for (int i = 0; i < numLocVars; ++i)
+    {
+        proot->locDisplay.push_back("\"" + loadAndProceed<string>(&baseAddr) + "\"");
+        baseAddr += sizeof(int) * 2;
+    }
+}
+
+void Dumped::printFunctionCompact(unsigned char* startAddr, int lvl, int idx)
+{
+    Proto proot;
+
+    if (!startAddr)
+    {
+        startAddr = bytecodeAddr + sizeof(HeaderBlock);
+    }
+    __dumpProtos(startAddr, lvl, idx, &proot);
+
     // display part
-    printIndent(lvl);
-    printf("**function %d (lvl. %d)**\n", idx, lvl);
-    printf("\n");
-
-    printIndent(lvl);
-    printf(".const\n");
-    for (int i = 0; i < kdisplay.size(); ++i)
-    {
-        printIndent(lvl);
-        printf("[%d]  %s\n", i, kdisplay[i].c_str());
-    }
-    printf("\n");
-
-    for (auto& addr: subaddrs)
-    {
-        printFunctionCompact(addr, lvl + 1);
-    }
-
-    printIndent(lvl);
-    printf(".instructions\n");
-    for(size_t i = 0; i < instrs.size(); ++i)
-    {
-        printIndent(lvl);
-        cout << "[" << i << "] ";
-        cout << sprintHex(instrs[i]) << endl;
-    }
-    printf("\n");
-
-    printIndent(lvl);
-    printf("**end of func. [%d] (lvl. %d)**\n\n", idx, lvl);
+    proot.print(lvl, idx); 
 }

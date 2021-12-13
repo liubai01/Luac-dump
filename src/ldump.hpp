@@ -9,10 +9,6 @@ using namespace std;
 
 // Refer to A No-Frills Introduction to Lua 5.1 VM Instructions and lua source code
 
-#define lua_Integer  long
-#define lua_Number   double
-#define Instruction  unsigned int
-
 #define LUA_TNUMFLT (3 | (0 << 4))  /* float numbers */
 #define LUA_TNUMINT (3 | (1 << 4))  /* integer numbers */
 
