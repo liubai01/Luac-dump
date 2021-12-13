@@ -16,9 +16,10 @@ using namespace std;
 
 void printUsage()
 {
-    cout << "Usage: ./luacformatter <file> <options>"                            << endl;
-    cout << "  -h                     Print formatted header block."         << endl;
+    cout << "Usage: ./luacformatter <file> <options>"                        << endl;
+    cout << "  -h                     Print header block."                   << endl;
     cout << "  -f                     Print function block"                  << endl;
+    cout << "  -i                     Print instructions"                    << endl;
 }
 
 int main(int argc, char* argv[])
@@ -43,7 +44,7 @@ int main(int argc, char* argv[])
     char c;
     bool hasOption = false;
 
-    while ((c = getopt (argc - 1, argv + 1, "hf")) != -1)
+    while ((c = getopt (argc - 1, argv + 1, "hfi")) != -1)
     {
         switch (c)
         {
@@ -72,6 +73,10 @@ int main(int argc, char* argv[])
                         ++p;
                     }
                 }
+                break;
+            case 'i':
+                hasOption = true;
+                d.printFunctionCompact();
                 break;
             case ':':
             // requires an option

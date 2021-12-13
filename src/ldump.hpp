@@ -56,6 +56,7 @@ public:
 
     void printHeaderBlock();
     void printFunctionBlock(unsigned char* startAddr=nullptr);
+    void printFunctionCompact(unsigned char* startAddr=nullptr, int lvl=0, int idx=0);
 
     vector<unsigned char*> subFuncsAddrs(unsigned char* startAddr=nullptr);
 };
