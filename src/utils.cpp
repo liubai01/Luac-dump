@@ -107,3 +107,31 @@ unsigned char* openMmapRO(string filename)
 
     return fileBase;
 }
+
+// https://stackoverflow.com/questions/1001307/detecting-endianness-programmatically-in-a-c-program
+bool isBigEndian()
+{
+    union {
+        uint32_t i;
+        char c[4];
+    } bint = {0x01020304};
+
+    return bint.c[0] == 1; 
+}
+
+Instruction toBigEnd(Instruction instr)
+{
+    Instruction ret;
+
+    if(!isBigEndian())
+    {
+        for (int i = 0; i < sizeof(ret); ++i)
+        {
+            ret = ret << 4 | (instr & 0xf);
+            instr = instr >> 4;
+        }
+        
+    }
+
+    return ret;
+}

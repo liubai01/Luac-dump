@@ -14,6 +14,8 @@ public:
     vector<string> kdisplay;
     // local variable display names
     vector<string> locDisplay{};
+    // up display names
+    vector<string> upDisplay{};
     // sub functions
     vector<Proto> subprotos;
 

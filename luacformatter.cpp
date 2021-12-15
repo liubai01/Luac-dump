@@ -19,7 +19,7 @@ void printUsage()
     cout << "Usage: ./luacformatter <file> <options>"                        << endl;
     cout << "  -h                     Print header block memory layout"      << endl;
     cout << "  -f                     Print function block memory layout"    << endl;
-    cout << "  -i                     Print instructions"                    << endl;
+    cout << "  -i                     Print function block intergrated info" << endl;
 }
 
 int main(int argc, char* argv[])
@@ -93,9 +93,10 @@ int main(int argc, char* argv[])
         }
     }
 
+    // by default output compacted info
     if (!hasOption)
     {
-        printUsage();
+        d.printFunctionCompact();
     }
 
 

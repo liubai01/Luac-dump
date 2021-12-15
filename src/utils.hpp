@@ -32,6 +32,11 @@ std::string string_format(const std::string& format, Args ... args )
 
 void printChar(unsigned char c);
 
+bool isBigEndian();
+
+Instruction toBigEnd(Instruction instr);
+
+// open file with mmap (read only mode)
 unsigned char* openMmapRO(string filename);
 
 template<class T>

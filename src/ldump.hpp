@@ -50,7 +50,9 @@ public:
 
     unsigned char* bytecodeAddr;
 
+    // print the memory layout of the header block
     void printHeaderBlock();
+    // print the memory layout of the function block
     void printFunctionBlock(unsigned char* startAddr=nullptr);
     void printFunctionCompact(unsigned char* startAddr=nullptr, int lvl=0, int idx=0);
 

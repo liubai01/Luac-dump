@@ -1,4 +1,5 @@
 #include "lproto.hpp"
+#include "linstr.hpp"
 
 #include <iostream>
 #include <string>
@@ -6,6 +7,8 @@
 
 void Proto::print(int lvl, int idx, string prompt)
 {
+    ParserInstr pInstr;
+
     cout << prompt;
     printf("**function %d (lvl. %d)**\n", idx, lvl);
     
@@ -30,6 +33,15 @@ void Proto::print(int lvl, int idx, string prompt)
     }
     cout << prompt << endl;
 
+    cout << prompt;
+    printf(".upvalue\n");
+    for (int i = 0; i < upDisplay.size(); ++i)
+    {
+        cout << prompt;
+        printf("[%d]  %s\n", i, upDisplay[i].c_str());
+    }
+    cout << prompt << endl;
+
     for (int i = 0; i < subprotos.size(); ++i)
     {
         auto& p = subprotos[i];
@@ -44,7 +56,13 @@ void Proto::print(int lvl, int idx, string prompt)
     {
         cout << prompt;
         cout << "[" << i << "] ";
-        cout << sprintHex(instrs[i]) << endl;
+        cout << sprintHex(instrs[i]) << "    ";
+        Instr* instrObj = pInstr.parseInstr(instrs[i]);
+
+        printf("%10s  ", instrObj->name.c_str());
+        printf("%s", instrObj->comment(instrs[i]).c_str());
+
+        cout << endl;
     }
     cout << prompt << endl;
 

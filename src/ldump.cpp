@@ -349,7 +349,11 @@ void Dumped::printFunctionBlock(unsigned char* startAddr)
         // 0xfc0 : [7, 14] bits mask = 01111111000000
 
         o = bytecodeAddr - initBase;
-        lt.push_back(o, "0x" + sprintHex(asbly_code), string_format("instr %d, optcode %2d", i, asbly_code & 0x3f));
+        lt.push_back(
+            o, 
+            "0x" + sprintHex(asbly_code), 
+            string_format("instr %d, optcode %2d", i, asbly_code & 0x3f)
+        );
     }
 
     lt.push_back(-1, " ", " ");
@@ -458,12 +462,12 @@ void Dumped::printFunctionBlock(unsigned char* startAddr)
     }
 
     lt.push_back(-1, " ", " ");
-    lt.push_back(-1, " ", "**Nested Functions**");
+    lt.push_back(-1, " ", "**Sub Functions**");
     lt.push_back(-1, " ", " ");
 
     o = bytecodeAddr - initBase;
     int numNestedFuncs = loadAndProceed<int>(&bytecodeAddr);
-    lt.push_back(o, to_string(numNestedFuncs), "Nested Function Nums");
+    lt.push_back(o, to_string(numNestedFuncs), "Sub Function Nums");
 
     for (int i = 0; i < numNestedFuncs; ++i)
     {
@@ -473,8 +477,8 @@ void Dumped::printFunctionBlock(unsigned char* startAddr)
 
         lt.push_back(
             o, 
-            " ", 
-            string_format("Function [%d]: size %d", i, funcSize)
+            "see table below", 
+            string_format("Sub-Function [%d]: size %d", i, funcSize)
         );
     }
 
@@ -650,11 +654,18 @@ void __dumpProtos(unsigned char* startAddr, int lvl, int idx, Proto * proot)
 
     int numLocVars = loadAndProceed<int>(&baseAddr);
 
-
     for (int i = 0; i < numLocVars; ++i)
     {
         proot->locDisplay.push_back("\"" + loadAndProceed<string>(&baseAddr) + "\"");
         baseAddr += sizeof(int) * 2;
+    }
+
+    int numUpVals = loadAndProceed<int>(&baseAddr);
+
+    // by default, there is a _ENV, you could refer to lua-users.org/wiki/EnvironmentsTutorial
+    for (int i = 0; i < numUpVals; ++i)
+    {
+        proot->upDisplay.push_back(loadAndProceed<string>(&baseAddr));
     }
 }
 
