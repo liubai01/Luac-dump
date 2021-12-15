@@ -2,6 +2,7 @@
 #define LINSTR_H
 
 #include "utils.hpp"
+#include "lobject.hpp"
 
 #include <unordered_map>
 
@@ -34,7 +35,7 @@ public:
     char           opcode;
     string           name;
 
-    virtual string comment(const Instruction& instr);
+    virtual string comment(const Instruction& instr, const ProtoDebug& ptdb);
 
     int GetA(const Instruction& instr);
     int GetB(const Instruction& instr);
@@ -44,7 +45,7 @@ public:
 class InstrUnknown : public Instr {
 public:
     InstrUnknown();
-    string comment(const Instruction& instr);
+    string comment(const Instruction& instr, const ProtoDebug& ptdb);
 };
 
 class InstrMove : public Instr {
@@ -55,14 +56,14 @@ public:
 class InstrSetTabUp : public Instr {
 public:
     InstrSetTabUp();
-    string comment(const Instruction& instr);
+    string comment(const Instruction& instr, const ProtoDebug& ptdb);
 };
 
 class InstrReturn : public Instr {
     // Returns to the calling function, with optional return values.
 public:
     InstrReturn();
-    string comment(const Instruction& instr);
+    string comment(const Instruction& instr, const ProtoDebug& ptdb);
 };
 
 class ParserInstr {

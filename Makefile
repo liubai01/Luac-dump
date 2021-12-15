@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-g -pedantic # -Wall -Werror -Wextra
 SOURCEDIR = src
 BUILDDIR = build
-OBJECTS = utils lproto ldump lytbl linstr
+OBJECTS = utils lproto ldump lytbl linstr lobject
 
 LUAS = aequalsix hello localx minimal subfunc
 LUAC = luac5.3

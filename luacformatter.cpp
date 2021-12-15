@@ -11,6 +11,7 @@
 
 #include "src/utils.hpp"
 #include "src/ldump.hpp"
+#include "src/lobject.hpp"
 
 using namespace std;
 

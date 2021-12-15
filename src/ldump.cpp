@@ -594,7 +594,7 @@ void __dumpProtos(unsigned char* startAddr, int lvl, int idx, Proto * proot)
     for(int i = 0; i < numInstr; ++i)
     {
         Instruction asbly_code = loadAndProceed<Instruction>(&baseAddr);
-        proot->instrs.push_back(asbly_code);
+        proot->ptdb.instrs.push_back(asbly_code);
     }
 
     // constant list
@@ -609,21 +609,21 @@ void __dumpProtos(unsigned char* startAddr, int lvl, int idx, Proto * proot)
         switch(nonvarTag)
         {
             case 0:
-                proot->kdisplay.push_back("NIL");
+                proot->ptdb.kdisplay.push_back("NIL");
                 break;
             case 3:
                 if (varTag == 0)
                 {
-                    proot->kdisplay.push_back(to_string(loadAndProceed<lua_Number>(&baseAddr)));
+                    proot->ptdb.kdisplay.push_back(to_string(loadAndProceed<lua_Number>(&baseAddr)));
                 } else {
-                    proot->kdisplay.push_back(to_string(loadAndProceed<lua_Integer>(&baseAddr)));
+                    proot->ptdb.kdisplay.push_back(to_string(loadAndProceed<lua_Integer>(&baseAddr)));
                 }
                 break;
             case 4:
-                proot->kdisplay.push_back("\"" + loadAndProceed<string>(&baseAddr) + "\"");
+                proot->ptdb.kdisplay.push_back("\"" + loadAndProceed<string>(&baseAddr) + "\"");
                 break;
             default:
-                proot->kdisplay.push_back("unknown");
+                proot->ptdb.kdisplay.push_back("unknown");
                 break;
         }
     }
@@ -656,7 +656,7 @@ void __dumpProtos(unsigned char* startAddr, int lvl, int idx, Proto * proot)
 
     for (int i = 0; i < numLocVars; ++i)
     {
-        proot->locDisplay.push_back("\"" + loadAndProceed<string>(&baseAddr) + "\"");
+        proot->ptdb.locDisplay.push_back("\"" + loadAndProceed<string>(&baseAddr) + "\"");
         baseAddr += sizeof(int) * 2;
     }
 
@@ -665,7 +665,7 @@ void __dumpProtos(unsigned char* startAddr, int lvl, int idx, Proto * proot)
     // by default, there is a _ENV, you could refer to lua-users.org/wiki/EnvironmentsTutorial
     for (int i = 0; i < numUpVals; ++i)
     {
-        proot->upDisplay.push_back(loadAndProceed<string>(&baseAddr));
+        proot->ptdb.upDisplay.push_back(loadAndProceed<string>(&baseAddr));
     }
 }
 

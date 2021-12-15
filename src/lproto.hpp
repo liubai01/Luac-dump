@@ -3,19 +3,13 @@
 
 #include <vector>
 #include "utils.hpp"
+#include "lobject.hpp"
 
 using namespace std;
 
 class Proto {
 public:
-    // instruction VM assembly codes
-    vector<Instruction> instrs;
-    // constant display names
-    vector<string> kdisplay;
-    // local variable display names
-    vector<string> locDisplay{};
-    // up display names
-    vector<string> upDisplay{};
+    ProtoDebug ptdb;
     // sub functions
     vector<Proto> subprotos;
 

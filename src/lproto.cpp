@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <string>
+#include <math.h>
+
+using namespace std;
 
 
 void Proto::print(int lvl, int idx, string prompt)
@@ -17,28 +20,28 @@ void Proto::print(int lvl, int idx, string prompt)
 
     cout << prompt;
     printf(".const\n");
-    for (int i = 0; i < kdisplay.size(); ++i)
+    for (int i = 0; i < ptdb.kdisplay.size(); ++i)
     {
         cout << prompt;
-        printf("[%d]  %s\n", i, kdisplay[i].c_str());
+        printf("[%d]  %s\n", i, ptdb.kdisplay[i].c_str());
     }
     cout << prompt << endl;
 
     cout << prompt;
     printf(".local\n");
-    for (int i = 0; i < locDisplay.size(); ++i)
+    for (int i = 0; i < ptdb.locDisplay.size(); ++i)
     {
         cout << prompt;
-        printf("[%d]  %s\n", i, locDisplay[i].c_str());
+        printf("[%d]  %s\n", i, ptdb.locDisplay[i].c_str());
     }
     cout << prompt << endl;
 
     cout << prompt;
     printf(".upvalue\n");
-    for (int i = 0; i < upDisplay.size(); ++i)
+    for (int i = 0; i < ptdb.upDisplay.size(); ++i)
     {
         cout << prompt;
-        printf("[%d]  %s\n", i, upDisplay[i].c_str());
+        printf("[%d]  %s\n", i, ptdb.upDisplay[i].c_str());
     }
     cout << prompt << endl;
 
@@ -52,17 +55,33 @@ void Proto::print(int lvl, int idx, string prompt)
     cout << prompt;
     printf(".instructions\n");
     cout << prompt << endl;
-    for(size_t i = 0; i < instrs.size(); ++i)
+    for(size_t i = 0; i < ptdb.instrs.size(); ++i)
     {
-        cout << prompt;
-        cout << "[" << i << "] ";
-        cout << sprintHex(instrs[i]) << "    ";
-        Instr* instrObj = pInstr.parseInstr(instrs[i]);
+        Instr* instrObj = pInstr.parseInstr(ptdb.instrs[i]);
+        vector<string> comments = splitStr(instrObj->comment(ptdb.instrs[i], ptdb), "\n");
 
-        printf("%10s  ", instrObj->name.c_str());
-        printf("%s", instrObj->comment(instrs[i]).c_str());
+        for (size_t j = 0; j < comments.size(); ++j)
+        {
+            string cmt = comments[j];
 
-        cout << endl;
+            if (j)
+            {
+                cout << prompt;
+                cout << "    ";
+                cout << "        " << "    ";
+                cout << "            ";
+            } else {
+                cout << prompt;
+                cout << "[" << i << "] ";
+                cout << sprintHex(toBigEnd(ptdb.instrs[i])) << "    ";
+                printf("%10s  ", instrObj->name.c_str());
+            }
+            
+            printf("%s", cmt.c_str());
+
+            cout << endl;
+        }
+
     }
     cout << prompt << endl;
 

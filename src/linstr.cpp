@@ -13,17 +13,20 @@ int Instr::GetA(const Instruction& instr)
     return instr >> 6 & 0xff;
 }
 
-int Instr::GetB(const Instruction& instr)
-{
-    return instr >> 14 & 0x1ff;
-}
-
 int Instr::GetC(const Instruction& instr)
 {
-    return instr >> 23 & 0x1ff;
+    int mag = instr >> 14 & 0x1ff; // the magnitude
+
+    return mag;
 }
 
-string Instr::comment(const Instruction& instr)
+int Instr::GetB(const Instruction& instr)
+{
+    int mag = instr >> 23 & 0x1ff; // the magnitude
+    return mag;
+}
+
+string Instr::comment(const Instruction& instr, const ProtoDebug& ptdb)
 {
     return "TBD";
 }
@@ -34,7 +37,7 @@ InstrUnknown::InstrUnknown()
     this->name   = "UNKNOWN";
 }
 
-string InstrUnknown::comment(const Instruction& instr)
+string InstrUnknown::comment(const Instruction& instr, const ProtoDebug& ptdb)
 {
     return " ";
 }
@@ -51,11 +54,23 @@ InstrSetTabUp::InstrSetTabUp()
     this->name   = "SETTABUP";
 }
 
-string InstrSetTabUp::comment(const Instruction& instr)
+string InstrSetTabUp::comment(const Instruction& instr, const ProtoDebug& ptdb)
 {
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
     string ret = string_format(
         "UpValue[%d][RK(%d)] := RK(%d)",
-        GetA(instr), GetB(instr) - 256, GetC(instr) - 256
+        A, B, C
+    );
+
+    string updisplay = ptdb.upDisplay[A];
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "%s[%s] = %s",
+        updisplay.c_str(), RKB.c_str(), RKC.c_str()
     );
     return ret;
 }
@@ -66,7 +81,7 @@ InstrReturn::InstrReturn()
     this->name   = "RETURN";
 }
 
-string InstrReturn::comment(const Instruction& instr)
+string InstrReturn::comment(const Instruction& instr, const ProtoDebug& ptdb)
 {
     int A = GetA(instr);
     int B = GetB(instr);
@@ -77,6 +92,11 @@ string InstrReturn::comment(const Instruction& instr)
         // If B is 0, the set of values range from R(A) to the top of the stack.
         ret = string_format(
             "return R(:%d)",
+            A
+        );
+    } else if (B == 1) {
+        ret = string_format(
+            "return void",
             A
         );
     } else {
