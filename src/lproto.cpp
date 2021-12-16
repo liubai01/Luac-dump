@@ -23,7 +23,7 @@ void Proto::print(string name, string prompt)
     for (int i = 0; i < ptdb.kdisplay.size(); ++i)
     {
         cout << prompt;
-        printf("[%d]  %s\n", i, ptdb.kdisplay[i].c_str());
+        printf("[%3d]  %s\n", i, ptdb.kdisplay[i].c_str());
     }
     cout << prompt << endl;
 
@@ -32,7 +32,7 @@ void Proto::print(string name, string prompt)
     for (int i = 0; i < ptdb.locDisplay.size(); ++i)
     {
         cout << prompt;
-        printf("[%d]  %s\n", i, ptdb.locDisplay[i].c_str());
+        printf("[%3d]  %s\n", i, ptdb.locDisplay[i].c_str());
     }
     cout << prompt << endl;
 
@@ -41,7 +41,7 @@ void Proto::print(string name, string prompt)
     for (int i = 0; i < ptdb.upDisplay.size(); ++i)
     {
         cout << prompt;
-        printf("[%d]  %s\n", i, ptdb.upDisplay[i].c_str());
+        printf("[%3d]  %s\n", i, ptdb.upDisplay[i].c_str());
     }
     cout << prompt << endl;
 
@@ -68,12 +68,12 @@ void Proto::print(string name, string prompt)
             if (j)
             {
                 cout << prompt;
-                cout << "    ";
+                cout << "      ";
                 cout << "        " << "    ";
                 cout << "            ";
             } else {
                 cout << prompt;
-                cout << "[" << i << "] ";
+                printf("[%3ld] ", i);
                 cout << sprintHex(toBigEnd(ptdb.instrs[i])) << "    ";
                 printf("%10s  ", instrObj->name.c_str());
             }

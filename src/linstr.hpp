@@ -35,7 +35,7 @@ public:
     char           opcode;
     string           name;
 
-    virtual string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    virtual string comment(const Instruction& instr, const ProtoData& ptdb);
 
     int GetA(const Instruction& instr);
     int GetB(const Instruction& instr);
@@ -47,7 +47,7 @@ public:
 class InstrUnknown : public Instr {
 public:
     InstrUnknown();
-    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 // opcode 0
@@ -60,49 +60,126 @@ public:
 class InstrLoadK : public Instr {
 public:
     InstrLoadK();
-    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 // opcode 3
 class InstrLoadBool : public Instr {
 public:
     InstrLoadBool();
-    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 // opcode 5
 class InstrGetUpVal : public Instr {
 public:
     InstrGetUpVal ();
-    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 // opcode 6
 class InstrGetTabUp : public Instr {
 public:
     InstrGetTabUp();
-    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 // opcode 8
 class InstrSetTabUp : public Instr {
 public:
     InstrSetTabUp();
-    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 // opcode 13
 class InstrAdd : public Instr {
 public:
     InstrAdd();
-    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 14
+class InstrSub : public Instr {
+public:
+    InstrSub();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 15
+class InstrMul : public Instr {
+public:
+    InstrMul();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 16
+class InstrMod : public Instr {
+public:
+    InstrMod();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 17
+class InstrPow : public Instr {
+public:
+    InstrPow();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 18
+class InstrDiv : public Instr {
+public:
+    InstrDiv();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 19
+class InstrIDiv : public Instr {
+public:
+    InstrIDiv();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 20
+class InstrBAnd : public Instr {
+public:
+    InstrBAnd();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 21
+class InstrBOr : public Instr {
+public:
+    InstrBOr();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 22
+class InstrBXOr : public Instr {
+public:
+    InstrBXOr();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 23
+class InstrShL : public Instr {
+public:
+    InstrShL();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 24
+class InstrShR : public Instr {
+public:
+    InstrShR();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 // opcode 36
 class InstrCall : public Instr {
 public:
     InstrCall();
-    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 // opcode 38
@@ -110,7 +187,7 @@ class InstrReturn : public Instr {
     // Returns to the calling function, with optional return values.
 public:
     InstrReturn();
-    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 // opcode 44
@@ -118,7 +195,7 @@ class InstrClosure : public Instr {
     // Creates an instance (or closure) of a function prototype.
 public:
     InstrClosure();
-    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 

@@ -9,7 +9,7 @@ using namespace std;
 
 class Proto {
 public:
-    ProtoDebug ptdb;
+    ProtoData ptdb;
     // sub functions
     vector<Proto> subprotos;
 

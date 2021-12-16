@@ -12,8 +12,8 @@ using namespace std;
 
 
 
-// data structure for proto debug infos
-class ProtoDebug
+// proto data
+class ProtoData
 {
 public:
     // instruction VM assembly codes

@@ -32,7 +32,7 @@ int Instr::GetBx(const Instruction& instr)
     return mag;
 }
 
-string Instr::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string Instr::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     return "TBD";
 }
@@ -45,7 +45,7 @@ InstrUnknown::InstrUnknown()
     this->name   = "UNKNOWN";
 }
 
-string InstrUnknown::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string InstrUnknown::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     // opcode is low 6 bits, mask should be 0x00111111(0x3f)
     return string_format("opcode(%d)", instr &0x3f);
@@ -67,7 +67,7 @@ InstrLoadBool::InstrLoadBool()
     this->name   = "LOADBOOL";
 }
 
-string InstrLoadBool::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string InstrLoadBool::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     int A = GetA(instr);
     int B = GetB(instr);
@@ -95,7 +95,7 @@ InstrLoadK::InstrLoadK()
     this->name   = "LOADK";
 }
 
-string InstrLoadK::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string InstrLoadK::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     int A = GetA(instr);
     int Bx = GetBx(instr);
@@ -122,7 +122,7 @@ InstrGetUpVal::InstrGetUpVal()
     this->name   = "GETUPVAL";
 }
 
-string InstrGetUpVal::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string InstrGetUpVal::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     int A = GetA(instr);
     int B = GetB(instr);
@@ -149,7 +149,7 @@ InstrGetTabUp::InstrGetTabUp()
     this->name   = "GETTABUP";
 }
 
-string InstrGetTabUp::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string InstrGetTabUp::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     int A = GetA(instr);
     int B = GetB(instr);
@@ -177,7 +177,7 @@ InstrSetTabUp::InstrSetTabUp()
     this->name   = "SETTABUP";
 }
 
-string InstrSetTabUp::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string InstrSetTabUp::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     int A = GetA(instr);
     int B = GetB(instr);
@@ -206,7 +206,7 @@ InstrAdd::InstrAdd()
     this->name   = "ADD";
 }
 
-string InstrAdd::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string InstrAdd::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     int A = GetA(instr);
     int B = GetB(instr);
@@ -226,6 +226,313 @@ string InstrAdd::comment(const Instruction& instr, const ProtoDebug& ptdb)
     return ret;
 }
 
+// Instruction Substraction
+
+InstrSub::InstrSub()
+{
+    this->opcode = 14;
+    this->name   = "SUB";
+}
+
+string InstrSub::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) - RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s - %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Multiplication
+
+InstrMul::InstrMul()
+{
+    this->opcode = 15;
+    this->name   = "MUL";
+}
+
+string InstrMul::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) * RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s * %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Module
+
+InstrMod::InstrMod()
+{
+    this->opcode = 16;
+    this->name   = "MOD";
+}
+
+string InstrMod::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) % RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s %% %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Power
+
+InstrPow::InstrPow()
+{
+    this->opcode = 17;
+    this->name   = "POW";
+}
+
+string InstrPow::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) ^ RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s ^ %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Division
+
+InstrDiv::InstrDiv()
+{
+    this->opcode = 18;
+    this->name   = "DIV";
+}
+
+string InstrDiv::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) / RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s / %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Integral Division
+
+InstrIDiv::InstrIDiv()
+{
+    this->opcode = 19;
+    this->name   = "IDIV";
+}
+
+string InstrIDiv::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) // RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s // %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Binary And
+
+InstrBAnd::InstrBAnd()
+{
+    this->opcode = 20;
+    this->name   = "BAND";
+}
+
+string InstrBAnd::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) & RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s & %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Binary Or
+
+InstrBOr::InstrBOr()
+{
+    this->opcode = 21;
+    this->name   = "BOR";
+}
+
+string InstrBOr::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) | RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s | %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Binary XOr
+
+InstrBXOr::InstrBXOr()
+{
+    this->opcode = 22;
+    this->name   = "BXOR";
+}
+
+string InstrBXOr::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) ~ RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s ~ %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Shift Left
+
+InstrShL::InstrShL()
+{
+    this->opcode = 23;
+    this->name   = "SHL";
+}
+
+string InstrShL::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) << RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s << %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Shift Right
+
+InstrShR::InstrShR()
+{
+    this->opcode = 24;
+    this->name   = "SHR";
+}
+
+string InstrShR::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := RK(%d) >> RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := %s >> %s",
+        A, RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
 
 // Instruction call
 
@@ -235,7 +542,7 @@ InstrCall::InstrCall()
     this->name   = "CALL";
 }
 
-string InstrCall::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string InstrCall::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     int A = GetA(instr);
     int B = GetB(instr);
@@ -276,7 +583,7 @@ InstrReturn::InstrReturn()
     this->name   = "RETURN";
 }
 
-string InstrReturn::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string InstrReturn::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     int A = GetA(instr);
     int B = GetB(instr);
@@ -312,7 +619,7 @@ InstrClosure::InstrClosure()
     this->name   = "CLOSURE";
 }
 
-string InstrClosure::comment(const Instruction& instr, const ProtoDebug& ptdb)
+string InstrClosure::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     int A = GetA(instr);
     int Bx = GetBx(instr);
@@ -336,6 +643,17 @@ ParserInstr::ParserInstr()
     REGCMD(InstrGetTabUp);    // opcode:  6
     REGCMD(InstrSetTabUp);    // opcode:  8
     REGCMD(InstrAdd);         // opcode: 13
+    REGCMD(InstrSub);         // opcode: 14
+    REGCMD(InstrMul);         // opcode: 15
+    REGCMD(InstrMod);         // opcode: 16
+    REGCMD(InstrPow);         // opcode: 17
+    REGCMD(InstrDiv);         // opcode: 18
+    REGCMD(InstrIDiv);        // opcode: 19
+    REGCMD(InstrBAnd);        // opcode: 20
+    REGCMD(InstrBOr);         // opcode: 21
+    REGCMD(InstrBXOr);        // opcode: 22
+    REGCMD(InstrShL);         // opcode: 23
+    REGCMD(InstrShR);         // opcode: 24
     REGCMD(InstrCall);        // opcode: 36
     REGCMD(InstrReturn);      // opcode: 38
     REGCMD(InstrClosure);     // opcode: 44
