@@ -26,10 +26,18 @@ int Instr::GetB(const Instruction& instr)
     return mag;
 }
 
+int Instr::GetBx(const Instruction& instr)
+{
+    int mag = instr >> 14; // the magnitude
+    return mag;
+}
+
 string Instr::comment(const Instruction& instr, const ProtoDebug& ptdb)
 {
     return "TBD";
 }
+
+// Instruction unknown
 
 InstrUnknown::InstrUnknown()
 {
@@ -42,11 +50,71 @@ string InstrUnknown::comment(const Instruction& instr, const ProtoDebug& ptdb)
     return " ";
 }
 
+// Instruction move
+
 InstrMove::InstrMove()
 {
     this->opcode = 0;
     this->name   = "MOVE";
 }
+
+
+// Instruction load constant
+
+InstrLoadK::InstrLoadK()
+{
+    this->opcode = 1;
+    this->name   = "LOADK";
+}
+
+string InstrLoadK::comment(const Instruction& instr, const ProtoDebug& ptdb)
+{
+    int A = GetA(instr);
+    int Bx = GetBx(instr);
+
+    string ret = string_format(
+        "R(%d) := Kst(%x)",
+        A, Bx
+    );
+
+    string kdisplay = ptdb.kdisplay[Bx];
+
+    ret += "\n" + string_format(
+        "R(%d) := %s",
+        A, kdisplay.c_str()
+    );
+    return ret;
+}
+
+// Instruction Get Table
+
+InstrGetTabUp::InstrGetTabUp()
+{
+    this->opcode = 6;
+    this->name   = "GETTABUP";
+}
+
+string InstrGetTabUp::comment(const Instruction& instr, const ProtoDebug& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := UpValue[%d][RK(%d)]",
+        A, B, C
+    );
+
+    string updisplay = ptdb.upDisplay[B];
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := UpValue[%s][%s]",
+        A, updisplay.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Set Table Up
 
 InstrSetTabUp::InstrSetTabUp()
 {
@@ -74,6 +142,43 @@ string InstrSetTabUp::comment(const Instruction& instr, const ProtoDebug& ptdb)
     );
     return ret;
 }
+
+// Instruction call
+
+InstrCall::InstrCall()
+{
+    this->opcode = 36;
+    this->name   = "CALL";
+}
+
+string InstrCall::comment(const Instruction& instr, const ProtoDebug& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+
+    string ret;
+
+    if (C != 1)
+    {
+        ret = string_format(
+            "R(%d), ... ,R(%d) := R(%d) (R(%d), ... ,R(%d))",
+            A, A + C - 2, A, A + 1, A + B - 1
+        );
+    } else {
+        // no returned value
+        ret = string_format(
+            "R(%d) (R(%d), ... ,R(%d))",
+            A, A + 1, A + B - 1
+        );
+    }
+
+
+
+    return ret;
+}
+
+// Instruction return
 
 InstrReturn::InstrReturn()
 {
@@ -115,7 +220,10 @@ ParserInstr::ParserInstr()
     Instr* instrobj;
 
     REGCMD(InstrMove);
+    REGCMD(InstrLoadK);
+    REGCMD(InstrGetTabUp);
     REGCMD(InstrSetTabUp);
+    REGCMD(InstrCall);
     REGCMD(InstrReturn);
     REGCMD(InstrUnknown);
 }

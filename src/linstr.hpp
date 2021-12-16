@@ -40,6 +40,8 @@ public:
     int GetA(const Instruction& instr);
     int GetB(const Instruction& instr);
     int GetC(const Instruction& instr);
+
+    int GetBx(const Instruction& instr);
 };
 
 class InstrUnknown : public Instr {
@@ -48,17 +50,41 @@ public:
     string comment(const Instruction& instr, const ProtoDebug& ptdb);
 };
 
+// opcode 0
 class InstrMove : public Instr {
 public:
     InstrMove();
 };
 
+// opcode 1
+class InstrLoadK : public Instr {
+public:
+    InstrLoadK();
+    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+};
+
+// opcode 6
+class InstrGetTabUp : public Instr {
+public:
+    InstrGetTabUp();
+    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+};
+
+// opcode 8
 class InstrSetTabUp : public Instr {
 public:
     InstrSetTabUp();
     string comment(const Instruction& instr, const ProtoDebug& ptdb);
 };
 
+// opcode 36
+class InstrCall : public Instr {
+public:
+    InstrCall();
+    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+};
+
+// opcode 38
 class InstrReturn : public Instr {
     // Returns to the calling function, with optional return values.
 public:
