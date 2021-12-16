@@ -8,12 +8,12 @@
 using namespace std;
 
 
-void Proto::print(int lvl, int idx, string prompt)
+void Proto::print(string name, string prompt)
 {
     ParserInstr pInstr;
 
     cout << prompt;
-    printf("**function %d (lvl. %d)**\n", idx, lvl);
+    printf("**function %s **\n", name.c_str());
     
     prompt += "| ";
     cout << prompt << endl;
@@ -45,10 +45,11 @@ void Proto::print(int lvl, int idx, string prompt)
     }
     cout << prompt << endl;
 
+    // subprotos
     for (int i = 0; i < subprotos.size(); ++i)
     {
         auto& p = subprotos[i];
-        p.print(lvl + 1, i, prompt + "    ");
+        p.print(string_format("%s.%d", name.c_str(), i), prompt + "    ");
         cout << prompt << endl;
     }
 
@@ -86,5 +87,5 @@ void Proto::print(int lvl, int idx, string prompt)
     cout << prompt << endl;
 
     cout << prompt.substr(0, prompt.size() - 2);
-    printf("**end of func. [%d] (lvl. %d)**\n", idx, lvl);
+    printf("**end of func. [%s] **\n", name.c_str());
 }

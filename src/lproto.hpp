@@ -13,7 +13,7 @@ public:
     // sub functions
     vector<Proto> subprotos;
 
-    void print(int lvl, int idx, string prompt="");
+    void print(string name="main", string prompt="");
 };
 
 #endif

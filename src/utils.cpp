@@ -121,19 +121,19 @@ bool isBigEndian()
 
 Instruction toBigEnd(Instruction instr)
 {
-    Instruction ret;
+    Instruction ret = 0;
 
     if(!isBigEndian())
     {
         for (int i = 0; i < sizeof(ret); ++i)
         {
-            ret = ret << 4 | (instr & 0xf);
-            instr = instr >> 4;
+            ret = ret << 8 | (instr & 0xff);
+            instr = instr >> 8;
         }
         
     }
 
-    return ret;
+    return ret ? ret : instr;
 }
 
 vector<string> splitStr(string s, string delimiter) {

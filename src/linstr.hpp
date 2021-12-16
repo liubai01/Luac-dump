@@ -63,6 +63,20 @@ public:
     string comment(const Instruction& instr, const ProtoDebug& ptdb);
 };
 
+// opcode 3
+class InstrLoadBool : public Instr {
+public:
+    InstrLoadBool();
+    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+};
+
+// opcode 5
+class InstrGetUpVal : public Instr {
+public:
+    InstrGetUpVal ();
+    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+};
+
 // opcode 6
 class InstrGetTabUp : public Instr {
 public:
@@ -74,6 +88,13 @@ public:
 class InstrSetTabUp : public Instr {
 public:
     InstrSetTabUp();
+    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+};
+
+// opcode 13
+class InstrAdd : public Instr {
+public:
+    InstrAdd();
     string comment(const Instruction& instr, const ProtoDebug& ptdb);
 };
 
@@ -91,6 +112,15 @@ public:
     InstrReturn();
     string comment(const Instruction& instr, const ProtoDebug& ptdb);
 };
+
+// opcode 44
+class InstrClosure : public Instr {
+    // Creates an instance (or closure) of a function prototype.
+public:
+    InstrClosure();
+    string comment(const Instruction& instr, const ProtoDebug& ptdb);
+};
+
 
 class ParserInstr {
     unordered_map<char, Instr*> opcode2Instr;

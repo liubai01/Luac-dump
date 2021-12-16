@@ -577,7 +577,7 @@ void Dumped::printFunctionBlock(unsigned char* startAddr)
     cout << "Table Size: " << o << endl;
 }
 
-void __dumpProtos(unsigned char* startAddr, int lvl, int idx, Proto * proot)
+void __dumpProtos(unsigned char* startAddr, string name, Proto * proot)
 {
     unsigned char* baseAddr = startAddr;
 
@@ -640,8 +640,7 @@ void __dumpProtos(unsigned char* startAddr, int lvl, int idx, Proto * proot)
         proot->subprotos.emplace_back();
         __dumpProtos(
             baseAddr, 
-            lvl + 1, 
-            idx, 
+            string_format("%s.%d", name.c_str(), i), 
             &proot->subprotos[proot->subprotos.size() - 1]
         );
         baseAddr += getFunctionBlockSize(baseAddr);
@@ -669,7 +668,7 @@ void __dumpProtos(unsigned char* startAddr, int lvl, int idx, Proto * proot)
     }
 }
 
-void Dumped::printFunctionCompact(unsigned char* startAddr, int lvl, int idx)
+void Dumped::printFunctionCompact(unsigned char* startAddr)
 {
     Proto proot;
 
@@ -677,8 +676,8 @@ void Dumped::printFunctionCompact(unsigned char* startAddr, int lvl, int idx)
     {
         startAddr = bytecodeAddr + sizeof(HeaderBlock);
     }
-    __dumpProtos(startAddr, lvl, idx, &proot);
+    __dumpProtos(startAddr, "main", &proot);
 
     // display part
-    proot.print(lvl, idx); 
+    proot.print(); 
 }
