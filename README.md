@@ -95,9 +95,9 @@ Function[0]: Level 0
 | 0x0000004f | 1            | is instack                           | 
 | 0x00000050 | 0            | upval index                          | 
 |            |              |                                      | 
-|            |              | **Nested Functions**                 | 
+|            |              | **Sub Functions**                    | 
 |            |              |                                      | 
-| 0x00000051 | 0            | Nested Function Nums                 | 
+| 0x00000051 | 0            | Sub Function Nums                    | 
 |            |              |                                      | 
 |            |              | **Debug Infos - Line Info(opcode ->  | 
 |            |              | src. line)**                         | 
