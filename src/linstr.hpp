@@ -190,6 +190,14 @@ public:
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
+// opcode 37
+class InstrTailCall : public Instr {
+public:
+    InstrTailCall();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+
 // opcode 38
 class InstrReturn : public Instr {
     // Returns to the calling function, with optional return values.

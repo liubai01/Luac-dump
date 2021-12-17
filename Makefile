@@ -4,7 +4,7 @@ SOURCEDIR = src
 BUILDDIR = build
 OBJECTS = utils lproto ldump lytbl linstr lobject
 
-LUAS = aequalsix hello localx minimal subfunc tf binop assign subfunc2 move move2
+LUAS = aequalsix hello localx minimal subfunc tf binop assign subfunc2 move move2 tailcall
 LUAC = luac5.3
 LUASDIR = luas
 

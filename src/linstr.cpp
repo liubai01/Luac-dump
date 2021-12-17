@@ -625,6 +625,37 @@ string InstrCall::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+// Instruction tail call
+
+InstrTailCall::InstrTailCall()
+{
+    this->opcode = 37;
+    this->name   = "TAILCALL";
+}
+
+string InstrTailCall::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+
+    string ret;
+
+    if (B == 2) {
+        // single argument
+        ret = string_format(
+            "return R(%d)(R(%d),)",
+            A, A + 1
+        );
+    } else {
+        ret = string_format(
+            "return R(%d)(R(%d), ... ,R(%d))",
+            A, A + 1, A + B - 1
+        );
+    }
+
+    return ret;
+}
+
 // Instruction return
 
 InstrReturn::InstrReturn()
@@ -706,6 +737,7 @@ ParserInstr::ParserInstr()
     REGCMD(InstrShL);         // opcode: 23
     REGCMD(InstrShR);         // opcode: 24
     REGCMD(InstrCall);        // opcode: 36
+    REGCMD(InstrTailCall);    // opcode: 37
     REGCMD(InstrReturn);      // opcode: 38
     REGCMD(InstrClosure);     // opcode: 44
     REGCMD(InstrUnknown);     // opcode: 127 (reserved)
