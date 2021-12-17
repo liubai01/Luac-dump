@@ -59,6 +59,19 @@ InstrMove::InstrMove()
     this->name   = "MOVE";
 }
 
+string InstrMove::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+
+    string ret = string_format(
+        "R(%d) := R(%d)",
+        A, B
+    );
+
+    return ret;
+}
+
 // Instruction load boolean
 
 InstrLoadBool::InstrLoadBool()
@@ -86,6 +99,43 @@ string InstrLoadBool::comment(const Instruction& instr, const ProtoData& ptdb)
     );
     return ret;
 }
+
+
+// Instruction load nill
+
+InstrLoadNil::InstrLoadNil()
+{
+    this->opcode = 4;
+    this->name   = "LOADNIL";
+}
+
+string InstrLoadNil::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+
+    string ret;
+
+    if (B > 1)
+    {
+        ret = string_format(
+            "R(%d), R(%d), ..., R(%d) := nil",
+            A, A + 1, A + B
+        );
+    } else if (B) {
+        ret = string_format(
+            "R(%d), R(%d) := nil",
+            A, A + B
+        );
+    } else {
+        ret = string_format(
+            "R(%d) := nil",
+            A
+        );
+    }
+    return ret;
+}
+
 
 // Instruction load constant
 
@@ -639,6 +689,7 @@ ParserInstr::ParserInstr()
     REGCMD(InstrMove);        // opcode:  0
     REGCMD(InstrLoadK);       // opcode:  1
     REGCMD(InstrLoadBool);    // opcode:  3
+    REGCMD(InstrLoadNil);     // opcode:  4
     REGCMD(InstrGetUpVal);    // opcode:  5
     REGCMD(InstrGetTabUp);    // opcode:  6
     REGCMD(InstrSetTabUp);    // opcode:  8

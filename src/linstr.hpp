@@ -54,6 +54,7 @@ public:
 class InstrMove : public Instr {
 public:
     InstrMove();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
 // opcode 1
@@ -67,6 +68,13 @@ public:
 class InstrLoadBool : public Instr {
 public:
     InstrLoadBool();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 4
+class InstrLoadNil : public Instr {
+public:
+    InstrLoadNil();
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 

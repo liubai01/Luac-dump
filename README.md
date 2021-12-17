@@ -1,4 +1,4 @@
-[![Main](https://github.com/liubai01/Lua-Lab1-luacFormatter/actions/workflows/c-cpp.yml/badge.svg?branch=main)](https://github.com/liubai01/Lua-Lab1-luacFormatter/actions/workflows/c-cpp.yml) ![](https://img.shields.io/github/v/release/liubai01/Lua-Lab1-luacFormatter)![](https://img.shields.io/github/last-commit/liubai01/Lua-Lab1-luacFormatter)
+[![Main](https://github.com/liubai01/Lua-Lab1-luacFormatter/actions/workflows/c-cpp.yml/badge.svg?branch=main)](https://github.com/liubai01/Lua-Lab1-luacFormatter/actions/workflows/c-cpp.yml) ![](https://img.shields.io/github/v/release/liubai01/Lua-Lab1-luacFormatter) ![](https://img.shields.io/github/last-commit/liubai01/Lua-Lab1-luacFormatter) 
 
 # Lua Lab1 LuacFormatter
 
@@ -129,40 +129,52 @@ Parsed by `luacformatter`:
 
 ```bash
 $ ./luacformatter luas/subfunc.luac -i
-**function 0 (lvl. 0)**
+**function main **
 | 
 | .const
-| [0]  8
-| [1]  "b"
+| [  0]  8
+| [  1]  "b"
 | 
 | .local
-| [0]  "a"
+| [  0]  "a"
 | 
-|     **function 0 (lvl. 1)**
+| .upvalue
+| [  0]  _ENV
+| 
+|     **function main.0 **
 |     | 
 |     | .const
-|     | [0]  "d"
+|     | [  0]  "d"
 |     | 
 |     | .local
-|     | [0]  "c"
+|     | [  0]  "c"
+|     | 
+|     | .upvalue
+|     | [  0]  _ENV
+|     | [  1]  a
 |     | 
 |     | .instructions
 |     | 
-|     | [0] 45008000
-|     | [1] 4d008000
-|     | [2] 08400080
-|     | [3] 26008000
+|     | [  0] 00800045      GETUPVAL  R(1) := UpValue[1]
+|     |                               R(1) := a
+|     | [  1] 0080004d           ADD  R(1) := RK(1) + RK(0)
+|     |                               R(1) := R(1) + R(0)
+|     | [  2] 80004008      SETTABUP  UpValue[0][RK(256)] := RK(1)
+|     |                               _ENV["d"] = R(1)
+|     | [  3] 00800026        RETURN  return void
 |     | 
-|     **end of func. [0] (lvl. 1)**
+|     **end of func. [main.0] **
 | 
 | .instructions
 | 
-| [0] 01000000
-| [1] 6c000000
-| [2] 08408080
-| [3] 26008000
+| [  0] 00000001         LOADK  R(0) := Kst(0)
+|                               R(0) := 8
+| [  1] 0000006c       CLOSURE  R(1) := closure(KPROTO[0])
+| [  2] 80804008      SETTABUP  UpValue[0][RK(257)] := RK(1)
+|                               _ENV["b"] = R(1)
+| [  3] 00800026        RETURN  return void
 | 
-**end of func. [0] (lvl. 0)**
+**end of func. [main] **
 ```
 
 
@@ -174,3 +186,4 @@ $ ./luacformatter luas/subfunc.luac -i
 
 ## Reference
 1. A No-Frills Introduction to Lua 5.1 VM instructions by Kein-Hong Man, esq.
+1. https://the-ravi-programming-language.readthedocs.io/en/latest/lua_bytecode_reference.html

@@ -12,7 +12,6 @@ using namespace std;
 Dumped::Dumped(unsigned char* bytecodeAddr)
 {
     this->bytecodeAddr = bytecodeAddr;
-
     HeaderBlock hb;
 
     // parse the header by HeaderBlock structure
