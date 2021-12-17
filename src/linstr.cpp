@@ -32,6 +32,12 @@ int Instr::GetBx(const Instruction& instr)
     return mag;
 }
 
+int Instr::GetSBx(const Instruction& instr)
+{
+    int  mag = instr >> 14;
+    return mag - (1 << 17) + 1;
+}
+
 string Instr::comment(const Instruction& instr, const ProtoData& ptdb)
 {
     return "TBD";
@@ -87,15 +93,16 @@ string InstrLoadBool::comment(const Instruction& instr, const ProtoData& ptdb)
     int C = GetC(instr);
 
     string ret = string_format(
-        "R(%d) := (Bool)%d; if (%d) pc++",
+        "R(%d) := (Bool) %d; if (%d) pc++",
         A, B, C
     );
 
     string bl = B ? "true" : "false";
+    string pcpp = C ? "pc++" : "";
 
     ret += "\n" + string_format(
-        "R(%d) := %s; if (%d) pc++",
-        A, bl.c_str(), C
+        "R(%d) := %s; %s",
+        A, bl.c_str(), pcpp.c_str()
     );
     return ret;
 }
@@ -584,6 +591,66 @@ string InstrShR::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+// Instruction Jump
+
+InstrJmp::InstrJmp()
+{
+    this->opcode = 30;
+    this->name   = "JMP";
+}
+
+string InstrJmp::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int sBx = GetSBx(instr);
+    string ret;
+
+    if (A)
+    {
+        ret += string_format(
+            "pc += {%d}; close all upvalues >= R(%d)",
+            sBx, A - 1
+        );
+    } else {
+        ret += string_format(
+            "pc += {%d}",
+            sBx
+        );
+    }
+
+    return ret;
+}
+
+// Instruction Less than or equal to
+
+InstrLE::InstrLE()
+{
+    this->opcode = 33;
+    this->name   = "LE";
+}
+
+string InstrLE::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+
+    string ret = string_format(
+        "if ((RK(%d) <= RK(%d)) ~= %d) then pc++",
+        B, C, A
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += string_format(
+        "\nif ((%s <= %s) ~= %d) then pc++",
+        RKB.c_str(), RKC.c_str(), A
+    );
+
+    return ret;
+}
+
 // Instruction call
 
 InstrCall::InstrCall()
@@ -682,10 +749,15 @@ string InstrReturn::comment(const Instruction& instr, const ProtoData& ptdb)
             "return void",
             A
         );
+    } else if (B == 2) {
+        ret = string_format(
+            "return R(%d)",
+            A
+        );
     } else {
         ret = string_format(
-            "return R(%d), ... ,R(%d+%d-2)",
-            A, A, B
+            "return R(%d), ... ,R(%d)",
+            A, A + B - 2
         );
     }
 
@@ -736,6 +808,8 @@ ParserInstr::ParserInstr()
     REGCMD(InstrBXOr);        // opcode: 22
     REGCMD(InstrShL);         // opcode: 23
     REGCMD(InstrShR);         // opcode: 24
+    REGCMD(InstrJmp);         // opcode: 30
+    REGCMD(InstrLE);          // opcode: 33
     REGCMD(InstrCall);        // opcode: 36
     REGCMD(InstrTailCall);    // opcode: 37
     REGCMD(InstrReturn);      // opcode: 38

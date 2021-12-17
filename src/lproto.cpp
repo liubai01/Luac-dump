@@ -49,7 +49,7 @@ void Proto::print(string name, string prompt)
     for (int i = 0; i < subprotos.size(); ++i)
     {
         auto& p = subprotos[i];
-        p.print(string_format("%s.%d", name.c_str(), i), prompt + "    ");
+        p.print(string_format("%s.KPROTO[%d]", name.c_str(), i), prompt + "    ");
         cout << prompt << endl;
     }
 
@@ -87,5 +87,5 @@ void Proto::print(string name, string prompt)
     cout << prompt << endl;
 
     cout << prompt.substr(0, prompt.size() - 2);
-    printf("**end of func. [%s] **\n", name.c_str());
+    printf("**end of function %s **\n", name.c_str());
 }

@@ -42,6 +42,7 @@ public:
     int GetC(const Instruction& instr);
 
     int GetBx(const Instruction& instr);
+    int GetSBx(const Instruction& instr);
 };
 
 class InstrUnknown : public Instr {
@@ -180,6 +181,20 @@ public:
 class InstrShR : public Instr {
 public:
     InstrShR();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 30
+class InstrJmp : public Instr {
+public:
+    InstrJmp();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 33
+class InstrLE : public Instr {
+public:
+    InstrLE();
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
