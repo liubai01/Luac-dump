@@ -82,7 +82,7 @@ Function[0]: Level 0
 |            |              | **Function Instructions**            | 
 |            |              |                                      | 
 | 0x0000003f | 1            | Number of instructions               | 
-| 0x00000047 | 0x26008000   | instr 0, optcode 38                  | 
+| 0x00000047 | 0x00800026   | instr 0, optcode 38                  | 
 |            |              |                                      | 
 |            |              | **Constants**                        | 
 |            |              |                                      | 

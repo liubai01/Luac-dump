@@ -350,7 +350,7 @@ void Dumped::printFunctionBlock(unsigned char* startAddr)
         o = bytecodeAddr - initBase;
         lt.push_back(
             o, 
-            "0x" + sprintHex(asbly_code), 
+            "0x" + sprintHex(toBigEnd(asbly_code)), 
             string_format("instr %d, optcode %2d", i, asbly_code & 0x3f)
         );
     }
