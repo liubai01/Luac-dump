@@ -100,6 +100,13 @@ public:
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
+// opcode 11
+class InstrNewTable : public Instr {
+public:
+    InstrNewTable();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
 // opcode 13
 class InstrAdd : public Instr {
 public:
@@ -221,6 +228,28 @@ public:
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
+// opcode 41
+class InstrTForCall : public Instr {
+public:
+    InstrTForCall();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 42
+class InstrTForLoop : public Instr {
+public:
+    InstrTForLoop();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 43
+class InstrSetList : public Instr {
+    // Sets the values for a range of array elements.
+public:
+    InstrSetList();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
 // opcode 44
 class InstrClosure : public Instr {
     // Creates an instance (or closure) of a function prototype.
@@ -229,6 +258,13 @@ public:
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
+// opcode 45
+class InstrVarArg : public Instr {
+    // VARARG implements the vararg operator ... in expressions.
+public:
+    InstrVarArg();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
 
 class ParserInstr {
     unordered_map<char, Instr*> opcode2Instr;

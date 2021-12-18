@@ -255,6 +255,27 @@ string InstrSetTabUp::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+
+// Instruction New Table
+InstrNewTable::InstrNewTable()
+{
+    this->opcode = 11;
+    this->name   = "NEWTABLE";
+}
+
+string InstrNewTable::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := {} (array.size = %d, hash.size = %d)",
+        A, luaO_int2fb(B), luaO_int2fb(C)
+    );
+
+    return ret;
+}
+
 // Instruction Add
 
 InstrAdd::InstrAdd()
@@ -608,12 +629,12 @@ string InstrJmp::comment(const Instruction& instr, const ProtoData& ptdb)
     if (A)
     {
         ret += string_format(
-            "pc += {%d}; close all upvalues >= R(%d)",
+            "pc += %d; close all upvalues >= R(%d)",
             sBx, A - 1
         );
     } else {
         ret += string_format(
-            "pc += {%d}",
+            "pc += %d",
             sBx
         );
     }
@@ -667,27 +688,30 @@ string InstrCall::comment(const Instruction& instr, const ProtoData& ptdb)
 
     string ret;
 
-    if (C != 1)
+    string retval;
+    string callargs;
+
+    if (C == 1)
     {
-        ret = string_format(
-            "R(%d), ... ,R(%d) := R(%d) (R(%d), ... ,R(%d))",
-            A, A + C - 2, A, A + 1, A + B - 1
-        );
-    } else if (B == 2) {
-        // no returned value, single argument
-        ret = string_format(
-            "R(%d) (R(%d), )",
-            A, A + 1
-        );
+        retval = "";
+    } else if (C == 2) {
+        retval = string_format("R(%d) :=", A);
+    } else if (C == 3) {
+        retval = string_format("R(%d), R(%d) :=", A, A + 1);
     } else {
-        // no returned value
-        ret = string_format(
-            "R(%d) (R(%d), ... ,R(%d))",
-            A, A + 1, A + B - 1
-        );
+        retval = string_format("R(%d), ..., R(%d) :=", A, A + C - 2);
     }
 
+    if (B == 2)
+    {
+        callargs = string_format("(R(%d), )", A + 1);
+    } else if (B == 3) {
+        callargs = string_format("(R(%d), R(%d))", A + 1, A + B - 1);
+    } else {
+        callargs = string_format("(R(%d), ..., R(%d))", A + 1, A + B - 1);
+    }
 
+    ret = string_format("%s R(%d) %s", retval.c_str(), A, callargs.c_str());
 
     return ret;
 }
@@ -764,7 +788,97 @@ string InstrReturn::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
-// Instruction return
+// Instruction Trim For Call
+
+InstrTForCall::InstrTForCall()
+{
+    this->opcode = 41;
+    this->name   = "TFORCALL";
+}
+
+string InstrTForCall::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret;
+
+    string retvals;
+
+    if (C == 1)
+    {
+        retvals = string_format("R(%d)", A + 3);
+    } else if (C == 2) {
+        retvals = string_format("R(%d), R(%d)", A + 3, A + 4);
+    } else {
+        retvals = string_format("R(%d), ... ,R(%d)", A + 3, A + 2 + C);
+    }
+
+    ret = string_format(
+        "%s := R(%d)(R(%d), R(%d))",
+        retvals.c_str(), A, A + 1, A + 2
+    );
+ 
+
+    return ret;
+}
+
+// Instruction Trim For Loop
+
+InstrTForLoop::InstrTForLoop()
+{
+    this->opcode = 42;
+    this->name   = "TFORLOOP";
+}
+
+string InstrTForLoop::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A   = GetA(instr);
+    int sBx = GetSBx(instr);
+
+    string ret = string_format(
+        "if R(%d) ~= nil then { R(%d)=R(%d); pc += %d }",
+        A + 1, A, A + 1, sBx
+    );
+
+    return ret;
+}
+
+// Instruction set list
+
+InstrSetList::InstrSetList()
+{
+    this->opcode = 43;
+    this->name   = "SETLIST";
+}
+
+string InstrSetList::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret;
+
+    string range = B ? string_format("1 <= i <= %d", B) : "1 <= i <= stk.top";
+
+    if (C - 1)
+    {
+        ret = string_format(
+            "R(%d)[%d * FPF + i] := R(%d + i), %s",
+            A, C - 1, A, range.c_str()
+        );
+    } else {
+        ret = string_format(
+            "R(%d)[i] := R(%d + i), %s",
+            A, A, range.c_str()
+        );
+    }
+
+
+    return ret;
+}
+
+// Instruction closure
 
 InstrClosure::InstrClosure()
 {
@@ -784,6 +898,44 @@ string InstrClosure::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+InstrVarArg::InstrVarArg()
+{
+    this->opcode = 45;
+    this->name   = "VARARG";
+}
+
+string InstrVarArg::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    string ret;
+
+    if (B == 0)
+    {
+        ret = string_format(
+            "R(%d), ... = vararg",
+            A
+        );
+    } else if (B == 1) {
+        ret = string_format(
+            "R(%d) = vararg",
+            A
+        );
+    } else if (B == 2) {
+        ret = string_format(
+            "R(%d), R(%d) = vararg",
+            A, A + 1
+        );
+    } else {
+        ret = string_format(
+            "R(%d), R(%d), ..., R(%d) = vararg",
+            A, A + 1, A + B - 1
+        );
+    }
+
+    return ret;
+}
+
 ParserInstr::ParserInstr()
 {
     // setup dictionary
@@ -796,6 +948,7 @@ ParserInstr::ParserInstr()
     REGCMD(InstrGetUpVal);    // opcode:  5
     REGCMD(InstrGetTabUp);    // opcode:  6
     REGCMD(InstrSetTabUp);    // opcode:  8
+    REGCMD(InstrNewTable);    // opcode: 11
     REGCMD(InstrAdd);         // opcode: 13
     REGCMD(InstrSub);         // opcode: 14
     REGCMD(InstrMul);         // opcode: 15
@@ -813,7 +966,11 @@ ParserInstr::ParserInstr()
     REGCMD(InstrCall);        // opcode: 36
     REGCMD(InstrTailCall);    // opcode: 37
     REGCMD(InstrReturn);      // opcode: 38
+    REGCMD(InstrTForCall);    // opcode: 41
+    REGCMD(InstrTForLoop);    // opcode: 42
+    REGCMD(InstrSetList);     // opcode: 43
     REGCMD(InstrClosure);     // opcode: 44
+    REGCMD(InstrVarArg);      // opcode: 45
     REGCMD(InstrUnknown);     // opcode: 127 (reserved)
 }
 

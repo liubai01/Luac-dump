@@ -85,4 +85,15 @@ T loadAndProceed(unsigned char** addr)
     return ret;
 }
 
+/*
+** converts an integer to a "floating point byte", represented as
+** (eeeeexxx), where the real value is (1xxx) * 2^(eeeee - 1) if
+** eeeee != 0 and (xxx) otherwise.
+*/
+int luaO_int2fb (unsigned int x);
+
+
+/* converts back */
+int luaO_fb2int (int x);
+
 #endif
