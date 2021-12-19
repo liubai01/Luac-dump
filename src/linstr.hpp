@@ -198,10 +198,38 @@ public:
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
+// opcode 31
+class InstrEQ : public Instr {
+public:
+    InstrEQ();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 32
+class InstrLT : public Instr {
+public:
+    InstrLT();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
 // opcode 33
 class InstrLE : public Instr {
 public:
     InstrLE();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 34
+class InstrTest : public Instr {
+public:
+    InstrTest();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 35
+class InstrTestSet : public Instr {
+public:
+    InstrTestSet();
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 

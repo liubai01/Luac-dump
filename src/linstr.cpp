@@ -642,6 +642,66 @@ string InstrJmp::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+// Instruction Equal To
+
+InstrEQ::InstrEQ()
+{
+    this->opcode = 31;
+    this->name   = "EQ";
+}
+
+string InstrEQ::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+
+    string ret = string_format(
+        "if ((RK(%d) == RK(%d)) ~= %d) then pc++",
+        B, C, A
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += string_format(
+        "\nif ((%s == %s) ~= %d) then pc++",
+        RKB.c_str(), RKC.c_str(), A
+    );
+
+    return ret;
+}
+
+// Instruction Less than
+
+InstrLT::InstrLT()
+{
+    this->opcode = 32;
+    this->name   = "LT";
+}
+
+string InstrLT::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+
+    string ret = string_format(
+        "if ((RK(%d) < RK(%d)) ~= %d) then pc++",
+        B, C, A
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += string_format(
+        "\nif ((%s < %s) ~= %d) then pc++",
+        RKB.c_str(), RKC.c_str(), A
+    );
+
+    return ret;
+}
+
 // Instruction Less than or equal to
 
 InstrLE::InstrLE()
@@ -667,6 +727,50 @@ string InstrLE::comment(const Instruction& instr, const ProtoData& ptdb)
     ret += string_format(
         "\nif ((%s <= %s) ~= %d) then pc++",
         RKB.c_str(), RKC.c_str(), A
+    );
+
+    return ret;
+}
+
+// Instruction Test
+
+InstrTest::InstrTest()
+{
+    this->opcode = 34;
+    this->name   = "TEST";
+}
+
+string InstrTest::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+
+    string ret = string_format(
+        "if (boolean(R(%d)) != %d)\n  then pc++",
+        B, C
+    );
+
+    return ret;
+}
+
+// Instruction Test And Set
+
+InstrTestSet::InstrTestSet()
+{
+    this->opcode = 35;
+    this->name   = "TESTSET";
+}
+
+string InstrTestSet::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+
+    string ret = string_format(
+        "if (boolean(R(%d)) != %d)\n  then pc++ else R(%d) := R(%d)",
+        B, C, A, B
     );
 
     return ret;
@@ -962,7 +1066,11 @@ ParserInstr::ParserInstr()
     REGCMD(InstrShL);         // opcode: 23
     REGCMD(InstrShR);         // opcode: 24
     REGCMD(InstrJmp);         // opcode: 30
+    REGCMD(InstrEQ);          // opcode: 31
+    REGCMD(InstrLT);          // opcode: 32
     REGCMD(InstrLE);          // opcode: 33
+    REGCMD(InstrTest);        // opcode: 34
+    REGCMD(InstrTestSet);     // opcode: 35
     REGCMD(InstrCall);        // opcode: 36
     REGCMD(InstrTailCall);    // opcode: 37
     REGCMD(InstrReturn);      // opcode: 38

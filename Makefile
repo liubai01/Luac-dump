@@ -5,7 +5,8 @@ BUILDDIR = build
 OBJECTS = utils lproto ldump lytbl linstr lobject
 
 LUAS = aequalsix hello localx minimal subfunc tf binop\
- assign subfunc2 move move2 tailcall jmp vararg tfor
+ assign subfunc2 move move2 tailcall jmp vararg tfor lgcinstr\
+ test1 test2 test3
 LUAC = luac5.3
 LUASDIR = luas
 
