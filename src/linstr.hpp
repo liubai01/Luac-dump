@@ -93,10 +93,24 @@ public:
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
+// opcode 7
+class InstrGetTable : public Instr {
+public:
+    InstrGetTable();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
 // opcode 8
 class InstrSetTabUp : public Instr {
 public:
     InstrSetTabUp();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 10
+class InstrSetTable : public Instr {
+public:
+    InstrSetTable();
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 

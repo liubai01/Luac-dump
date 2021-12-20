@@ -78,6 +78,33 @@ string InstrMove::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+// Instruction load constant
+
+InstrLoadK::InstrLoadK()
+{
+    this->opcode = 1;
+    this->name   = "LOADK";
+}
+
+string InstrLoadK::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int Bx = GetBx(instr);
+
+    string ret = string_format(
+        "R(%d) := Kst(%x)",
+        A, Bx
+    );
+
+    string kdisplay = ptdb.kdisplay[Bx];
+
+    ret += "\n" + string_format(
+        "R(%d) := %s",
+        A, kdisplay.c_str()
+    );
+    return ret;
+}
+
 // Instruction load boolean
 
 InstrLoadBool::InstrLoadBool()
@@ -144,32 +171,6 @@ string InstrLoadNil::comment(const Instruction& instr, const ProtoData& ptdb)
 }
 
 
-// Instruction load constant
-
-InstrLoadK::InstrLoadK()
-{
-    this->opcode = 1;
-    this->name   = "LOADK";
-}
-
-string InstrLoadK::comment(const Instruction& instr, const ProtoData& ptdb)
-{
-    int A = GetA(instr);
-    int Bx = GetBx(instr);
-
-    string ret = string_format(
-        "R(%d) := Kst(%x)",
-        A, Bx
-    );
-
-    string kdisplay = ptdb.kdisplay[Bx];
-
-    ret += "\n" + string_format(
-        "R(%d) := %s",
-        A, kdisplay.c_str()
-    );
-    return ret;
-}
 
 // Instruction load up value
 
@@ -226,6 +227,33 @@ string InstrGetTabUp::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+// Instruction Get Table
+
+InstrGetTable::InstrGetTable()
+{
+    this->opcode = 7;
+    this->name   = "GETTABLE";
+}
+
+string InstrGetTable::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := R(%d)[RK(%d)]",
+        A, B, C
+    );
+
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d) := R(%d)[%s]",
+        A, B, RKC.c_str()
+    );
+    return ret;
+}
+
 // Instruction Set Table Up
 
 InstrSetTabUp::InstrSetTabUp()
@@ -251,6 +279,34 @@ string InstrSetTabUp::comment(const Instruction& instr, const ProtoData& ptdb)
     ret += "\n" + string_format(
         "%s[%s] = %s",
         updisplay.c_str(), RKB.c_str(), RKC.c_str()
+    );
+    return ret;
+}
+
+// Instruction Set Table
+
+InstrSetTable::InstrSetTable()
+{
+    this->opcode = 10;
+    this->name   = "SETTABLE";
+}
+
+string InstrSetTable::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d)[RK(%d)] := RK(%d)",
+        A, B, C
+    );
+
+    string RKB = B > 255 ? ptdb.kdisplay[B - 256] : string_format("R(%d)", B);
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += "\n" + string_format(
+        "R(%d)[%s] := %s",
+        A, RKB.c_str(), RKC.c_str()
     );
     return ret;
 }
@@ -1051,7 +1107,9 @@ ParserInstr::ParserInstr()
     REGCMD(InstrLoadNil);     // opcode:  4
     REGCMD(InstrGetUpVal);    // opcode:  5
     REGCMD(InstrGetTabUp);    // opcode:  6
+    REGCMD(InstrGetTable);    // opcode:  7
     REGCMD(InstrSetTabUp);    // opcode:  8
+    REGCMD(InstrSetTable);    // opcode: 10
     REGCMD(InstrNewTable);    // opcode: 11
     REGCMD(InstrAdd);         // opcode: 13
     REGCMD(InstrSub);         // opcode: 14
