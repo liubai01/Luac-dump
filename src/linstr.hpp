@@ -240,6 +240,20 @@ public:
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
+// opcode 28
+class InstrLen : public Instr {
+public:
+    InstrLen();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 29
+class InstrConcat : public Instr {
+public:
+    InstrConcat();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
 // opcode 30
 class InstrJmp : public Instr {
 public:

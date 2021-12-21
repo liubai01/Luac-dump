@@ -787,6 +787,49 @@ string InstrNot::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+// Instruction Length
+
+InstrLen::InstrLen()
+{
+    this->opcode = 28;
+    this->name   = "LEN";
+}
+
+string InstrLen::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+
+    string ret = string_format(
+        "R(%d) := length of R(%d)",
+        A, B
+    );
+
+    return ret;
+}
+
+// Instruction Concatenate
+
+InstrConcat::InstrConcat()
+{
+    this->opcode = 29;
+    this->name   = "CONCAT";
+}
+
+string InstrConcat::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+
+    string ret = string_format(
+        "R(%d) := R(%d).. ... ..R(%d)",
+        A, B, C
+    );
+
+    return ret;
+}
+
 // Instruction Jump
 
 InstrJmp::InstrJmp()
@@ -1247,6 +1290,8 @@ ParserInstr::ParserInstr()
     REGCMD(InstrUNM);         // opcode: 25
     REGCMD(InstrBNot);        // opcode: 26
     REGCMD(InstrNot);         // opcode: 27
+    REGCMD(InstrLen);         // opcode: 28
+    REGCMD(InstrConcat);      // opcode: 29
     REGCMD(InstrJmp);         // opcode: 30
     REGCMD(InstrEQ);          // opcode: 31
     REGCMD(InstrLT);          // opcode: 32
