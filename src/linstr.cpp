@@ -340,6 +340,7 @@ string InstrSetTable::comment(const Instruction& instr, const ProtoData& ptdb)
 
 
 // Instruction New Table
+
 InstrNewTable::InstrNewTable()
 {
     this->opcode = 11;
@@ -354,6 +355,34 @@ string InstrNewTable::comment(const Instruction& instr, const ProtoData& ptdb)
     string ret = string_format(
         "R(%d) := {} (array.size = %d, hash.size = %d)",
         A, luaO_int2fb(B), luaO_int2fb(C)
+    );
+
+    return ret;
+}
+
+// Instruction Self
+
+InstrSelf::InstrSelf()
+{
+    this->opcode = 12;
+    this->name   = "SELF";
+}
+
+string InstrSelf::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+    int C = GetC(instr);
+    string ret = string_format(
+        "R(%d) := R(%d); R(%d) := R(%d)[RK(%d)]",
+        A + 1, B, A, B, C
+    );
+
+    string RKC = C > 255 ? ptdb.kdisplay[C - 256] : string_format("R(%d)", C);
+
+    ret += string_format(
+        "\nR(%d) := R(%d); R(%d) := R(%d)[%s]",
+        A + 1, B, A, B, RKC.c_str()
     );
 
     return ret;
@@ -882,11 +911,11 @@ string InstrCall::comment(const Instruction& instr, const ProtoData& ptdb)
     {
         retval = "";
     } else if (C == 2) {
-        retval = string_format("R(%d) :=", A);
+        retval = string_format("R(%d) := ", A);
     } else if (C == 3) {
-        retval = string_format("R(%d), R(%d) :=", A, A + 1);
+        retval = string_format("R(%d), R(%d) := ", A, A + 1);
     } else {
-        retval = string_format("R(%d), ..., R(%d) :=", A, A + C - 2);
+        retval = string_format("R(%d), ..., R(%d) := ", A, A + C - 2);
     }
 
     if (B == 2)
@@ -898,7 +927,7 @@ string InstrCall::comment(const Instruction& instr, const ProtoData& ptdb)
         callargs = string_format("(R(%d), ..., R(%d))", A + 1, A + B - 1);
     }
 
-    ret = string_format("%s R(%d) %s", retval.c_str(), A, callargs.c_str());
+    ret = string_format("%sR(%d) %s", retval.c_str(), A, callargs.c_str());
 
     return ret;
 }
@@ -1139,6 +1168,7 @@ ParserInstr::ParserInstr()
     REGCMD(InstrSetUpVal);    // opcode:  9
     REGCMD(InstrSetTable);    // opcode: 10
     REGCMD(InstrNewTable);    // opcode: 11
+    REGCMD(InstrSelf);        // opcode: 12
     REGCMD(InstrAdd);         // opcode: 13
     REGCMD(InstrSub);         // opcode: 14
     REGCMD(InstrMul);         // opcode: 15

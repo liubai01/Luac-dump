@@ -128,6 +128,13 @@ public:
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
+// opcode 12
+class InstrSelf : public Instr {
+public:
+    InstrSelf();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
 // opcode 13
 class InstrAdd : public Instr {
 public:
