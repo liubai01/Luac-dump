@@ -724,6 +724,69 @@ string InstrShR::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+// Instruction Unary Minus
+
+InstrUNM::InstrUNM()
+{
+    this->opcode = 25;
+    this->name   = "UNM";
+}
+
+string InstrUNM::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+
+    string ret = string_format(
+        "R(%d) := -R(%d)",
+        A, B
+    );
+
+    return ret;
+}
+
+// Instruction Bit-wise Not Operator
+
+InstrBNot::InstrBNot()
+{
+    this->opcode = 26;
+    this->name   = "BNOT";
+}
+
+string InstrBNot::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+
+    string ret = string_format(
+        "R(%d) := ~R(%d)",
+        A, B
+    );
+
+    return ret;
+}
+
+// Instruction Bit-wise Not Operator
+
+InstrNot::InstrNot()
+{
+    this->opcode = 27;
+    this->name   = "NOT";
+}
+
+string InstrNot::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+
+    string ret = string_format(
+        "R(%d) := not R(%d)",
+        A, B
+    );
+
+    return ret;
+}
+
 // Instruction Jump
 
 InstrJmp::InstrJmp()
@@ -1181,6 +1244,9 @@ ParserInstr::ParserInstr()
     REGCMD(InstrBXOr);        // opcode: 22
     REGCMD(InstrShL);         // opcode: 23
     REGCMD(InstrShR);         // opcode: 24
+    REGCMD(InstrUNM);         // opcode: 25
+    REGCMD(InstrBNot);        // opcode: 26
+    REGCMD(InstrNot);         // opcode: 27
     REGCMD(InstrJmp);         // opcode: 30
     REGCMD(InstrEQ);          // opcode: 31
     REGCMD(InstrLT);          // opcode: 32

@@ -219,6 +219,27 @@ public:
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
+// opcode 25
+class InstrUNM : public Instr {
+public:
+    InstrUNM();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 26
+class InstrBNot : public Instr {
+public:
+    InstrBNot();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 27
+class InstrNot : public Instr {
+public:
+    InstrNot();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
 // opcode 30
 class InstrJmp : public Instr {
 public:
