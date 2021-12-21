@@ -283,6 +283,33 @@ string InstrSetTabUp::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+// Instruction Set Up Value
+
+InstrSetUpVal::InstrSetUpVal()
+{
+    this->opcode = 9;
+    this->name   = "SETUPVAL";
+}
+
+string InstrSetUpVal::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int B = GetB(instr);
+
+    string ret = string_format(
+        "UpValue[%d] := R(%d)",
+        B, A
+    );
+
+    string updisplay = ptdb.upDisplay[B];
+
+    ret += "\n" + string_format(
+        "%s = R(%d)",
+        updisplay.c_str(), A
+    );
+    return ret;
+}
+
 // Instruction Set Table
 
 InstrSetTable::InstrSetTable()
@@ -1109,6 +1136,7 @@ ParserInstr::ParserInstr()
     REGCMD(InstrGetTabUp);    // opcode:  6
     REGCMD(InstrGetTable);    // opcode:  7
     REGCMD(InstrSetTabUp);    // opcode:  8
+    REGCMD(InstrSetUpVal);    // opcode:  9
     REGCMD(InstrSetTable);    // opcode: 10
     REGCMD(InstrNewTable);    // opcode: 11
     REGCMD(InstrAdd);         // opcode: 13

@@ -107,6 +107,13 @@ public:
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
+// opcode 9
+class InstrSetUpVal : public Instr {
+public:
+    InstrSetUpVal();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
 // opcode 10
 class InstrSetTable : public Instr {
 public:
