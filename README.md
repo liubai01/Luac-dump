@@ -1,16 +1,23 @@
 [![Main](https://github.com/liubai01/Lua-Lab1-luacFormatter/actions/workflows/c-cpp.yml/badge.svg?branch=main)](https://github.com/liubai01/Lua-Lab1-luacFormatter/actions/workflows/c-cpp.yml) ![](https://img.shields.io/github/v/release/liubai01/Lua-Lab1-luacFormatter) ![](https://img.shields.io/github/last-commit/liubai01/Lua-Lab1-luacFormatter) 
 
-# Lua Lab1 LuacFormatter
+# Luacdump
 
 **Author**: `Yintao, Xu`
 
 **Email**: `yintao.xu@nyu.edu`
 
-In this lab, we aim at parsing lua5.3's dumped file(a.k.a lua byte code). Our goal is to manipulate lua's assembly code and get familiar with the source code. [Chunkspy.lua](https://github.com/efrederickson/LuaAssemblyTools) `luac -l` provides similar functionality.
+- In this repository, we aim at parsing lua5.3's dumped file(a.k.a lua byte code). 
+  - [Chunkspy.lua](https://github.com/efrederickson/LuaAssemblyTools),`luac -l` provides similar functionality.
+
+- The name is similar to `objdump`, which displays information from object files. `luacdump` instead displays information for luac-precompiled lua scripts.
+
+- It is one of the three steps to build a toy lua interpreter.
 
 ## Usage
 
-`./luacformatter <file> <options>`
+Run `make` at repository folder to build the `luacdump`.
+
+`./luacdump <file> <options>`
 
 - **-h**: Print formatted header block memory layout
 - **-f**: Print function block memory layout
@@ -34,7 +41,7 @@ xxd minimal.luac
 Parsed by `luacformatter`:
 
 ```bash
-$ ./luacformatter luas/minimal.luac -hf
+$ ./luacdump luas/minimal.luac -hf
 | Offset     | Content      | Desciption                           |
 | ---------- | ------------ | ------------------------------------ |
 |            |              |                                      | 
@@ -125,10 +132,10 @@ local a = 8
 function b(c) d = a + c end
 ```
 
-Parsed by `luacformatter`:
+Parsed by `luacdump`:
 
 ```bash
-$ ./luacformatter luas/subfunc.luac -i
+$ ./luacdump luas/subfunc.luac -i
 **function main **
 | 
 | .const
@@ -141,7 +148,7 @@ $ ./luacformatter luas/subfunc.luac -i
 | .upvalue
 | [  0]  _ENV
 | 
-|     **function main.0 **
+|     **function main.KPROTO[0] **
 |     | 
 |     | .const
 |     | [  0]  "d"
@@ -163,18 +170,18 @@ $ ./luacformatter luas/subfunc.luac -i
 |     |                               _ENV["d"] = R(1)
 |     | [  3] 00800026        RETURN  return void
 |     | 
-|     **end of func. [main.0] **
+|     **end of function main.KPROTO[0] **
 | 
 | .instructions
 | 
 | [  0] 00000001         LOADK  R(0) := Kst(0)
-|                               R(0) := 8
+|                               a := 8
 | [  1] 0000006c       CLOSURE  R(1) := closure(KPROTO[0])
 | [  2] 80804008      SETTABUP  UpValue[0][RK(257)] := RK(1)
 |                               _ENV["b"] = R(1)
 | [  3] 00800026        RETURN  return void
 | 
-**end of func. [main] **
+**end of function main **
 ```
 
 
