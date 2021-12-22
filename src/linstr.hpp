@@ -44,6 +44,8 @@ public:
     int GetBx(const Instruction& instr);
     int GetSBx(const Instruction& instr);
 
+    int GetAx(const Instruction& instr);
+
     string GetRDisplay(int ridx, const ProtoData& ptdb);
 };
 
@@ -64,6 +66,13 @@ public:
 class InstrLoadK : public Instr {
 public:
     InstrLoadK();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 2
+class InstrLoadKx : public Instr {
+public:
+    InstrLoadKx();
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
@@ -372,6 +381,14 @@ class InstrVarArg : public Instr {
     // VARARG implements the vararg operator ... in expressions.
 public:
     InstrVarArg();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 46
+class InstrExtraArg : public Instr {
+    // ExtraArg pairs with LoadKx to handle LoadK when #constant > 262143 
+public:
+    InstrExtraArg();
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 

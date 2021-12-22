@@ -38,6 +38,11 @@ int Instr::GetSBx(const Instruction& instr)
     return mag - (1 << 17) + 1;
 }
 
+int Instr::GetAx(const Instruction& instr)
+{
+    return instr >> 6;
+}
+
 string Instr::GetRDisplay(int ridx, const ProtoData& ptdb)
 {
     string rdisplay = 
@@ -113,6 +118,32 @@ string InstrLoadK::comment(const Instruction& instr, const ProtoData& ptdb)
     ret += "\n" + string_format(
         "%s := %s",
         radisplay.c_str(), kdisplay.c_str()
+    );
+    return ret;
+}
+
+// Instruction load constant (when #cont. >= 262143)
+
+InstrLoadKx::InstrLoadKx()
+{
+    this->opcode = 2;
+    this->name   = "LOADKX";
+}
+
+string InstrLoadKx::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+
+    string ret = string_format(
+        "R(%d) := Kst(extra arg)",
+        A
+    );
+
+    string radisplay = GetRDisplay(A, ptdb);
+
+    ret += "\n" + string_format(
+        "%s := Kst(extra arg)",
+        radisplay.c_str()
     );
     return ret;
 }
@@ -1322,6 +1353,23 @@ string InstrVarArg::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+InstrExtraArg::InstrExtraArg()
+{
+    this->opcode = 46;
+    this->name   = "EXTRAARG";
+}
+
+string InstrExtraArg::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int Ax = GetAx(instr);
+    string ret = string_format(
+        "extra arg = %d",
+        Ax
+    );
+
+    return ret;
+}
+
 ParserInstr::ParserInstr()
 {
     // setup dictionary
@@ -1329,6 +1377,7 @@ ParserInstr::ParserInstr()
 
     REGCMD(InstrMove);        // opcode:  0
     REGCMD(InstrLoadK);       // opcode:  1
+    REGCMD(InstrLoadKx);      // opcode:  2
     REGCMD(InstrLoadBool);    // opcode:  3
     REGCMD(InstrLoadNil);     // opcode:  4
     REGCMD(InstrGetUpVal);    // opcode:  5
@@ -1372,6 +1421,7 @@ ParserInstr::ParserInstr()
     REGCMD(InstrSetList);     // opcode: 43
     REGCMD(InstrClosure);     // opcode: 44
     REGCMD(InstrVarArg);      // opcode: 45
+    REGCMD(InstrExtraArg);    // opcode: 46
     REGCMD(InstrUnknown);     // opcode: 127 (reserved)
 }
 
