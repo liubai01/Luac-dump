@@ -34,8 +34,19 @@ int Instr::GetBx(const Instruction& instr)
 
 int Instr::GetSBx(const Instruction& instr)
 {
-    int  mag = instr >> 14;
+    int mag = instr >> 14;
     return mag - (1 << 17) + 1;
+}
+
+string Instr::GetRDisplay(int ridx, const ProtoData& ptdb)
+{
+    string rdisplay = 
+        ridx < ptdb.locDisplay.size() ? 
+            ptdb.locDisplay[ridx].substr(1, ptdb.locDisplay[ridx].size() - 2) 
+          : string_format("R(%d)", ridx)
+    ;
+
+    return rdisplay;
 }
 
 string Instr::comment(const Instruction& instr, const ProtoData& ptdb)
@@ -97,10 +108,11 @@ string InstrLoadK::comment(const Instruction& instr, const ProtoData& ptdb)
     );
 
     string kdisplay = ptdb.kdisplay[Bx];
+    string radisplay = GetRDisplay(A, ptdb);
 
     ret += "\n" + string_format(
-        "R(%d) := %s",
-        A, kdisplay.c_str()
+        "%s := %s",
+        radisplay.c_str(), kdisplay.c_str()
     );
     return ret;
 }
@@ -1110,6 +1122,58 @@ string InstrReturn::comment(const Instruction& instr, const ProtoData& ptdb)
     return ret;
 }
 
+// Instruction for loop
+
+InstrForLoop::InstrForLoop()
+{
+    this->opcode = 39;
+    this->name   = "FORLOOP";
+}
+
+string InstrForLoop::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int sBx = GetSBx(instr);
+
+    string ret = string_format(
+        "R(%d) += R(%d)",
+        A, A + 2
+    );
+
+    ret += string_format(
+        "\nif R(%d) <?= R(%d) then \n{\n   pc+=%d\n   R(%d) = R(%d)\n}",
+        A, A + 1, sBx, A + 3, A
+    );
+
+    return ret;
+}
+
+// Instruction for loop preparation
+
+InstrForPrep::InstrForPrep()
+{
+    this->opcode = 40;
+    this->name   = "FORPREP";
+}
+
+string InstrForPrep::comment(const Instruction& instr, const ProtoData& ptdb)
+{
+    int A = GetA(instr);
+    int sBx = GetSBx(instr);
+
+    string ret = string_format(
+        "R(%d) -= R(%d); pc += %d",
+        A, A + 2, sBx
+    );
+
+    ret += string_format(
+        "\n%s -= %s; pc += %d",
+        GetRDisplay(A, ptdb).c_str(), GetRDisplay(A + 2, ptdb).c_str(), sBx, A + 3, A
+    );
+
+    return ret;
+}
+
 // Instruction Trim For Call
 
 InstrTForCall::InstrTForCall()
@@ -1301,6 +1365,8 @@ ParserInstr::ParserInstr()
     REGCMD(InstrCall);        // opcode: 36
     REGCMD(InstrTailCall);    // opcode: 37
     REGCMD(InstrReturn);      // opcode: 38
+    REGCMD(InstrForLoop);     // opcode: 39
+    REGCMD(InstrForPrep);     // opcode: 40
     REGCMD(InstrTForCall);    // opcode: 41
     REGCMD(InstrTForLoop);    // opcode: 42
     REGCMD(InstrSetList);     // opcode: 43

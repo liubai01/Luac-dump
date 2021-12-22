@@ -6,7 +6,7 @@ OBJECTS = utils lproto ldump lytbl linstr lobject
 
 LUAS = aequalsix hello localx minimal subfunc tf binop\
  assign subfunc2 move move2 tailcall jmp vararg tfor lgcinstr\
- test1 test2 test3 tab setupval settab self unary len concat
+ test1 test2 test3 tab setupval settab self unary len concat for
 LUAC = luac5.3
 LUASDIR = luas
 

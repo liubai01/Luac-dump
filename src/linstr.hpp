@@ -43,6 +43,8 @@ public:
 
     int GetBx(const Instruction& instr);
     int GetSBx(const Instruction& instr);
+
+    string GetRDisplay(int ridx, const ProtoData& ptdb);
 };
 
 class InstrUnknown : public Instr {
@@ -316,6 +318,22 @@ class InstrReturn : public Instr {
     // Returns to the calling function, with optional return values.
 public:
     InstrReturn();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 39
+class InstrForPrep : public Instr {
+    // FORPREP initializes a numeric for loop
+public:
+    InstrForPrep();
+    string comment(const Instruction& instr, const ProtoData& ptdb);
+};
+
+// opcode 40
+class InstrForLoop : public Instr {
+    // FORLOOP performs an iteration of a numeric for loop
+public:
+    InstrForLoop();
     string comment(const Instruction& instr, const ProtoData& ptdb);
 };
 
